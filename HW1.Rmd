@@ -14,28 +14,110 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### 1. 2.4 (question 1)
 
-+ (a) The sample size n is extremely large, and the number of predictors
+* (a) The sample size n is extremely large, and the number of predictors
 p is small.
 
 As the sample size is extremely large the certainty of the veracity of the sample mean is high. Therefore the variance will be low, since an unknown sample will not deviate a lot from the sample mean of a large sample.
 The low number of predictors will prevent overfitting and thus reduce variance. Since we have two factors that reduce variance, in this case, a flexible statistical learning method is expected to be better because it will reduce the bias. The higher variance of more flexible learning method will be countered by the above two factors.
 
-+ (b) The number of predictors p is extremely large, and the number
+* (b) The number of predictors p is extremely large, and the number
 of observations n is small.
 
 The large number of predictors will tend to overfit and perform poor on unseen data, thus increasing variance. Similarly with less number of samples there could be a lot of variablility in the least sqaures which would mean higher variance for unseen data. Therefore in this case an inflexible learning method is expected to perform better since it will counter the high variance.
 
-+ (c) The relationship between the predictors and response is highly
+* (c) The relationship between the predictors and response is highly
 non-linear.
 
 Where the relationship between predictors and response is highly non-linear, an inflexible model will have high bias given that it won't be able to capture the complex relationship between the predictors and response. Therefore a flexible method is expected to perform better in this case since it will reduce the bias.
 
-+ (d) The variance of the error terms, i.e. $\mu^2$ = Var(), is extremely
+* (d) The variance of the error terms, i.e. $\mu^2$ = Var(), is extremely
 high.
 
 As the variance of error terms is extremely high, the certainty of the veracity of the sample mean is very low. Therefore the model variance will be high, since an unknown sample could deviate a lot from the sample mean. Hence, in this case, an inflexible statistical learning method is expected to be better because it will reduce the variance.
 
 
-### 1. 2.4 (question 3)
+### 2. 2.4 (question 3)
 
-### 1. 2.4 (question 4)
+### 3. 2.4 (question 6)
+
+### 4. 2.4 (question 8)
+
+* (a) Reading `College.csv` into `college` variable
+```{r a, echo=TRUE}
+college <- read.csv("College.csv", stringsAsFactors = TRUE)
+```
+
+* (b) Set first column as row names and then remove that column from data
+```{r b, echo=TRUE}
+# fix(college)
+rownames(college) = college[,1]
+college = college[,-1]
+# fix(college)
+```
+
+* (c) 
+i. Summary of `college` variable
+```{r c i, echo=TRUE}
+summary(college)
+```
+
+ii. Scatterplot matrix of first 10 variables
+```{r c ii, echo=TRUE}
+pairs(college[,1:10])
+```
+
+iii. Boxplot of `Outstate` versus `Private`
+```{r c iii, echo=TRUE}
+plot(Outstate~Private, data=college)
+```
+
+iv. Elite Universities
+```{r c iv, echo=TRUE}
+Elite = rep("No",nrow(college))
+Elite[college$Top10perc > 50] = " Yes"
+Elite = as.factor(Elite)
+college = data.frame(college, Elite)
+summary(college)
+plot(Outstate~Elite, data=college)
+```
+
+From the `summary`, we have **78 `Elite`** universities.
+
+v. Histograms
+```{r c v, echo=TRUE, results='hide', fig.height= 8}
+par(mfrow=c(2,2))
+
+hist_vars   = c("Apps", "S.F.Ratio", "Room.Board", "Grad.Rate")
+hist_breaks = c(50, 10, 20, 20)
+hist_data = subset(college, select = hist_vars)
+
+make_hist <- function(list.elem, names, breaks) {
+  hist(list.elem, main = names, xlab = names, breaks = breaks)
+}
+
+mapply(make_hist, list.elem = hist_data, names = names(hist_data), breaks = hist_breaks)
+```
+
+vi. Exploration
+```{r c vi, echo=TRUE, results='hide', fig.height= 8}
+college$Accept.Rate = college$Accept / college$Apps * 100
+college$Enroll.Rate = college$Enroll / college$Accept * 100
+
+par(mfrow=c(2,2))
+plot(Grad.Rate ~ Outstate, data = college)
+plot(Outstate ~ Private, data = college)
+plot(Outstate ~ S.F.Ratio, data = college)
+plot(S.F.Ratio ~ Private, data = college)
+
+par(mfrow=c(2,2))
+plot(Apps ~ Private, data = college)
+plot(Enroll.Rate ~ Outstate, data = college)
+```
+
+Observations:
+
+  + Strong positive correlation between `Grad.Rate` and `Outstate` fees
+  + Significant difference in `Outstate` fees depending on if the university is `Private` and on the `S.F.Ratio`
+  + From the second point and above plot, we see that `Private` university colleges have a smaller `S.F.Ratio`
+  + `Private` university colleges tend to get lot more applications than public
+  + `Enroll.Rate` is negatively correlated with the college `Outstate` fees
