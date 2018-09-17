@@ -189,3 +189,90 @@ plot(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year 
 fit = lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + origin, data = Auto)
 summary(fit)
 ```
+  
+### 7. 3.7 (question 5)
+
+Given that, 
+
+$\hat{y_{i}} = x_{i} \hat{\beta}$ and $\hat{\beta} = \frac{\sum_{i'=1}^n x_{i'} y_{i'}}{\sum_{j=1}^n x_{j}^2}$
+
+We can write,
+
+$\hat{y_{i}} = x_i \frac{\sum_{i'=1}^n x_{i'} y_{i'}}{\sum_{j=1}^n x_{j}^2} = \sum_{i'=1}^n\left( \frac{x_{i'} x_i}{\sum_{j=1}^n x_{j}^2}\right) y_{i'}$
+
+Hence,
+
+$\hat{y_{i}} = \sum_{i'=1}^n{a_{i'} y_{i'}}$ where $a_{i'} = \frac{x_{i'} x_i}{\sum_{j=1}^n x_{j}^2}$
+
+### 8. 3.7 (question 6)
+
+On one hand, we know from (3.2) that the least squares line respects this equation
+
+$\hat{y} = \hat{\beta_0} + \hat{\beta_1} x$
+
+On the other hand, we know from (3.4) that
+
+$\hat{\beta_0} = \bar{y} - \hat{\beta_1} \bar{x}$
+
+Hence,
+
+$\hat{y} = (\bar{y} - \hat{\beta_1} \bar{x}) + \hat{\beta_1} x $
+
+For $x = \bar{x}$,
+
+$\hat{y} = \bar{y} - \hat{\beta_1} \bar{x} + \hat{\beta_1} \bar{x} = \bar{y}$
+
+Consquently, the point $(\bar{x} , \bar{y})$ belongs to the least squares line.
+
+### 9. 3.7 (question 8)
+
+* (a) The following code performs a simple linear regression on the Auto dataset
+
+```{r 8 a, echo=TRUE}
+
+# Import the ISLR package
+library(ISLR)
+
+# Attach the Auto as the current database
+attach(Auto)
+
+# Perform a simple linear regression
+lmFit=lm(mpg~horsepower)
+
+#Print the results
+summary(lmFit)
+
+# Calculate the mean of the response (mpg) (question ii.)
+mean(mpg)
+```
+
+i. Given that the p-value of the F-statistic is close to zero and the F-statistic is large than 1, we can reject the null-hypothesis stating that all regression coefficients are equal to zero, therefore, we can conclude that there is a significant relationship between horsepower and mpg.
+
+ii. First, the mean value for the response, which is mpg, is 23.446 and since the RSE of lmFit was 4.906, we can observe that the percentage error is about `r round(4.906*100/mean(mpg), digits=3)`%.
+Second, the $R^2$ of lmFit was about 0.6059 which reflects that 60.59% of the variance in mpg is explained by the predictor horsepower.
+
+iii. The relationship between the predictor and the response is negative meaning that the more horsepower a given car would have the less mpg efficiency it would have.
+
+iv. 
+``` {r 8 a iv}
+predict(lmFit, data.frame(horsepower=98), interval="confidence")
+predict(lmFit, data.frame(horsepower=98), interval="prediction")
+```
+
+The predicted mpg associated with a horsepower of 98 is 24.46708 with a confidence interval of [23.97308, 24.96108] and a prediction interval of [14.8094, 34.12476]
+
+* (b) 
+``` {r 8 b}
+# Plot the response and the predictor
+plot(horsepower, mpg)
+
+# Add the least squares regression line
+abline(lmFit)
+```
+
+* (c) 
+``` {r 8 c}
+plot(lmFit)
+```
+
+According to the residuals plots, we can observe that they are highly biased at lower and higher values and respectively less biased in the middle. We can note then some signs of non-linearity.
