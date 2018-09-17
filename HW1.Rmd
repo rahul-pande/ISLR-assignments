@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, tidy.opts=list(width.cutoff=60), tidy=TRUE)
 # https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
 ```
 
@@ -93,7 +93,10 @@ hist_data = subset(college, select = hist_vars)
 make_hist <- function(list.elem, names, breaks) {
   hist(list.elem, main = names, xlab = names, breaks = breaks)
 }
-mapply(make_hist, list.elem = hist_data, names = names(hist_data), breaks = hist_breaks)
+mapply(make_hist, 
+       list.elem = hist_data, 
+       names = names(hist_data),
+       breaks = hist_breaks)
 ```
 
 vi. Exploration
@@ -136,14 +139,15 @@ hist(Auto$origin, xlab = "origin", main = "Histogram of origin")
 ```
 From the summary, we have
     
-  + Qualitative predictors: mpg, cylinders, displacement, horsepower, weight, acceleration, year
-  + Quantitative predictors: name, origin
+  + Qualitative predictors: name, origin
+  + Quantitative predictors: mpg, cylinders, displacement, horsepower, weight, acceleration, year
 
 `origin` is a qualitative predictor and no quantitative. Origin of car (1. American, 2. European, 3. Japanese)
 
 * (b) Range of quantitative predictors
-```{r 2.4 9b, echo=TRUE, results="asis", fig.align='center'}
-quantitative_preds = c("mpg", "cylinders", "displacement", "horsepower", "weight", "acceleration", "year")
+```{r 2.4 9b, echo=TRUE, fig.align='center', tidy=TRUE}
+quantitative_preds = c("mpg", "cylinders", "displacement", "horsepower", "weight",
+                       "acceleration", "year")
 qualitative_preds = c("origin", "name")
 
 ranges = data.frame(lapply(subset(Auto, select = quantitative_preds), range))
@@ -161,19 +165,22 @@ knitr::kable(mean_sd)
 
 * (d) Range, mean and standard deviation of quantitative predictors of **subset data**
 ```{r 2.4 9d, echo=TRUE, fig.align='center'}
-subset_mean_sd = data.frame(lapply(subset(Auto[- c(10:85),], select = quantitative_preds), function(x) {
-  c(range = range(x), mean = mean(x), std_dev = sd(x))
-  }
-))
+subset_mean_sd = data.frame(lapply(subset(Auto[- c(10:85),], select = quantitative_preds),
+                                   function(x) {
+                                     c(range = range(x), mean = mean(x), std_dev = sd(x))
+                                     }
+                                   )
+                            )
 knitr::kable(subset_mean_sd)
 ```
 
 * (e) Predictor Findings
 ```{r 2.4 9e, echo=TRUE, fig.height=10, fig.width=10, fig.align='center'}
-factor_vars = c("origin", "cylinders", "name", "year")
+factor_vars = c("origin")
 Auto[factor_vars] = lapply(Auto[factor_vars], as.factor)
 pairs(Auto)
 ```
+
 From the scatter plots, we observer that:
 
 + `mpg` decreases non-linearly with increase in displacement
@@ -184,11 +191,27 @@ From the scatter plots, we observer that:
 * (f) `mpg` prediction
 ```{r 2.4 9f, echo=TRUE, fig.height=3}
 par(mfrow = c(1,3))
-plot(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + origin, data = Auto)
+plot(mpg ~ cylinders + displacement + horsepower + weight + acceleration +
+       year + origin, data = Auto)
 
-fit = lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + origin, data = Auto)
+fit = lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration +
+           year + origin, data = Auto)
 summary(fit)
 ```
+
+
+From the plots and the fit summary:
+
+  + `origin` is a very good predictor of `mpg` since the coefficients are large with small Std. Error (p-stat less than 0.05)
+  + The next significant predictor is `year` with low p-stat value. We also see in the plot that `mpg` tends to increase year on year
+  + `weight` is significant predictor but has a small coefficient, i.e. very small effect on the predictions of `mpg`
+  + `horsepower`, `displacement` and `cylinders` cannot be used as predictor for `mpg` since the their estimated coefficients and Std. Error are close, consequently the coefficients might very well be zero, which is suggested by (p-stat >> 0.05)
+
+
+
+### 6. 3.7 (question 1)
+
+
 
 ### 7. 3.7 (question 5)
 
