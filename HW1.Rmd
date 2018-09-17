@@ -211,7 +211,14 @@ From the plots and the fit summary:
 
 ### 6. 3.7 (question 1)
 
+The small p-values in Table 3.4 for TV and radio indicate that, holding the other predictors constant, each of these predictors will, with high likelihood, change the amount of sales. For example, fixing the amount of TV and newspaper advertising, while increasing the amount of radio advertising, will very likely lead to an increase in sales because the p-value in Table 3.4 is very small for radio and radio's coefficient is large and positive.
 
+Similarly, fixing the amount of radio and newspaper advertising, while increasing the amount of TV advertising, will very likely lead to an increase in sales because the p-value in Table 3.4 is very small for TV and radio's coefficient is positive.
+
+One unit increase in TV (while keeping other variables constant) will likely lead to smaller increase in sales than one unit increase in radio (while keeping other variables constant) as the coeff(radio) > coeff(TV)
+
+On the other hand, since the p-value for newspaper is quite large, the data indicates that newspaper advertising in unlikely to have any effect on sales when TV and radio are held fixed. Note, Table 3.3 does show a small p-value for a single linear regression across
+newspaper and sales, but this is likely because newspaper advertising is predictive of TV and radio advertising, not necessarily because newspaper advertising directly influences sales.
 
 ### 7. 3.7 (question 5)
 
@@ -251,7 +258,7 @@ Consquently, the point $(\bar{x} , \bar{y})$ belongs to the least squares line.
 
 * (a) The following code performs a simple linear regression on the Auto dataset
 
-```{r 8 a, echo=TRUE}
+```{r 3.7 8a, echo=TRUE}
 
 # Import the ISLR package
 library(ISLR)
@@ -277,7 +284,7 @@ Second, the $R^2$ of lmFit was about 0.6059 which reflects that 60.59% of the va
 iii. The relationship between the predictor and the response is negative meaning that the more horsepower a given car would have the less mpg efficiency it would have.
 
 iv. 
-``` {r 8 a iv}
+``` {r 3.7 8a iv}
 predict(lmFit, data.frame(horsepower=98), interval="confidence")
 predict(lmFit, data.frame(horsepower=98), interval="prediction")
 ```
@@ -285,7 +292,7 @@ predict(lmFit, data.frame(horsepower=98), interval="prediction")
 The predicted mpg associated with a horsepower of 98 is 24.46708 with a confidence interval of [23.97308, 24.96108] and a prediction interval of [14.8094, 34.12476]
 
 * (b) 
-``` {r 8 b}
+``` {r 3.7 8b}
 # Plot the response and the predictor
 plot(horsepower, mpg)
 
@@ -294,7 +301,7 @@ abline(lmFit)
 ```
 
 * (c) 
-``` {r 8 c}
+``` {r 3.7 8c}
 plot(lmFit)
 ```
 
