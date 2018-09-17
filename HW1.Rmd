@@ -121,3 +121,18 @@ Observations:
   + From the second point and above plot, we see that `Private` university colleges have a smaller `S.F.Ratio`
   + `Private` university colleges tend to get lot more applications than public
   + `Enroll.Rate` is negatively correlated with the college `Outstate` fees
+  
+### 7. 3.7 (question 5)
+
+Given that, 
+
+$\hat{y_{i}} = x_{i} \hat{\beta}$ and $\hat{\beta} = \frac{\sum_{i'=1}^n x_{i'} y_{i'}}{\sum_{j=1}^n x_{j}^2}$
+
+We can write,
+
+$\hat{y_{i}} = x_i \frac{\sum_{i'=1}^n x_{i'} y_{i'}}{\sum_{j=1}^n x_{j}^2} = \sum_{i'=1}^n\left( \frac{x_{i'} x_i}{\sum_{j=1}^n x_{j}^2}\right) y_{i'}$
+
+Hence,
+
+$\hat{y_{i}} = \sum_{i'=1}^n{a_{i'} y_{i'}}$ where $a_{i'} = \frac{x_{i'} x_i}{\sum_{j=1}^n x_{j}^2}$
+
