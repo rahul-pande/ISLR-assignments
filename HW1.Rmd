@@ -136,3 +136,23 @@ Hence,
 
 $\hat{y_{i}} = \sum_{i'=1}^n{a_{i'} y_{i'}}$ where $a_{i'} = \frac{x_{i'} x_i}{\sum_{j=1}^n x_{j}^2}$
 
+### 8. 3.7 (question 6)
+
+On one hand, we know from (3.2) that the least squares line respects this equation
+
+$\hat{y} = \hat{\beta_0} + \hat{\beta_1} x$
+
+On the other hand, we know from (3.4) that
+
+$\hat{\beta_0} = \bar{y} - \hat{\beta_1} \bar{x}$
+
+Hence,
+
+$\hat{y} = (\bar{y} - \hat{\beta_1} \bar{x}) + \hat{\beta_1} x $
+
+For $x = \bar{x}$,
+
+$\hat{y} = \bar{y} - \hat{\beta_1} \bar{x} + \hat{\beta_1} \bar{x} = \bar{y}$
+
+Consquently, the point $(\bar{x} , \bar{y})$ belongs to the least squares line.
+
