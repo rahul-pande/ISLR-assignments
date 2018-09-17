@@ -189,7 +189,7 @@ plot(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year 
 fit = lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration + year + origin, data = Auto)
 summary(fit)
 ```
-  
+
 ### 7. 3.7 (question 5)
 
 Given that, 
@@ -216,7 +216,7 @@ $\hat{\beta_0} = \bar{y} - \hat{\beta_1} \bar{x}$
 
 Hence,
 
-$\hat{y} = (\bar{y} - \hat{\beta_1} \bar{x}) + \hat{\beta_1} x $
+$\hat{y} = (\bar{y} - \hat{\beta_1} \bar{x}) + \hat{\beta_1} x$
 
 For $x = \bar{x}$,
 
