@@ -40,6 +40,12 @@ As the variance of error terms is extremely high, the certainty of the veracity 
 
 ### 3. 2.4 (question 6)
 
+A parametric statistical learning approach assumes a given form for $f$ and reduces the problem to estimate only the parameters of this form in order to predict $f$, however, a non-parametric approach does not assume any form for $f$ and hence requires a large set of data in order to estimate $f$.
+
+The advantages of a parametric approach in regression or classification is the simplification of the model which could lead to a good estimation without requiring a large amount of data.
+
+On the other side, this approach could lead to an erroneous model if the initially assumed form is wrong. Another problem could sometimes occur if we try to make the model more flexible until it overfits the training set.
+
 ### 4. 2.4 (question 8)
 
 * (a) Reading `College.csv` into `college` variable
