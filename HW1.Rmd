@@ -336,6 +336,7 @@ abline(lmFit)
 
 * (c) 
 ``` {r 3.7 8c}
+par(mfrow=c(2,2))
 plot(lmFit)
 ```
 
