@@ -313,3 +313,93 @@ plot(lmFit)
 ```
 
 According to the residuals plots, we can observe that they are highly biased at lower and higher values and respectively less biased in the middle. We can note then some signs of non-linearity.
+In addition, the plot of residuals vs leverage reveals some high leverage points and some outliers outside the range [-2,2]
+
+### 10. 3.7 (question 9)
+
+* (a)
+
+``` {r 3.7 9a}
+# Produce a scatterplot
+pairs(Auto)
+```
+
+* (b)
+
+``` {r 3.7 9b}
+# Remove the names variable
+names(Auto)
+
+# Compute the correlation matrix
+cor(Auto[1:8])
+```
+
+* (c)
+``` {r 3.7 9c}
+lmFit2 = lm(mpg ~ . - name, data = Auto)
+summary(lmFit2)
+```
+
+i. We can observe that the p-value of the F-statistic is close to zero and the F-statistic is greater than 1, hence, we can reject the null-hypothesis and confirm the relationship between `mpg` and the other predictors.
+
+ii. By referring to the p-values associated with each predictor's t-statistic, we can observe that the variables `year`, `weight`, `origin`, `displacement` are statistically significant to the response.
+
+iii. The coefficient of the `year` variable suggests that an increase of 1 year (the car is a year newer) involves a 0.75 mile per gallon increase (car is more fuel efficient) while the other predictors remain constant.
+
+* (d)
+``` {r 3.7 9d}
+# 2 x 2 pictures on one plot
+par(mfrow = c(2, 2))
+# 
+plot(lmFit2)
+```
+
+The residuals vs fitted graph shows a slight non-linearity in the relationship between the response and the predictors. We can also observe that the residuals seem to be heteroscedastic (as the fitted values increase, the range of the residuals increases).
+We notice that the residuals vs leverage plot suggests the presence of some outliers (outside the interval [-2,2]) and the presence of some observations with unusually high leverage (such as point 14)
+
+* (e)
+
+``` {r 3.7 9e i}
+lmFit2 = lm(mpg ~ year + weight + origin + year:origin, data = Auto)
+summary(lmFit2)
+```
+
+In this model, we tried to combine the most significant predictors and add an interaction between `year` and `origin`.
+The results show an improvement in the adjusted R-squared (we use the adjusted R-squared since the two models don't have the same number of predictors) which reflects that the new model explains better the variablity in `mpg`.
+We notice also that the value of the p-value for the interaction term is close to zero which explains that the term is significant in the model.
+
+
+``` {r 3.7 9e ii}
+lmFit2 = lm(mpg ~.-name+horsepower:weight, data = Auto)
+summary(lmFit2)
+```
+
+In this model, we take the initial model and add an interaction between `horsepower` and `weight`.
+The results show that the variability in `mpg` is even better explained than the previous model (85.9% for adjusted R-squared compared to 82.13% in the previous model)..
+The interaction term `horsepower:weight` has a low p-value which means that it is statistically significant to the response.
+
+* (f)
+
+``` {r 3.7 9f i}
+lmFit2 = lm(mpg ~.-name+ log(horsepower), data = Auto)
+summary(lmFit2)
+```
+
+``` {r 3.7 9f ii}
+lmFit2 = lm(mpg ~.-name+ I((weight)^2), data = Auto)
+summary(lmFit2)
+```
+
+``` {r 3.7 9f iii}
+lmFit2 = lm(mpg ~.-name+ log(horsepower) + I((horsepower)^2), data = Auto)
+summary(lmFit2)
+```
+
+``` {r 3.7 9f iv}
+lmFit2 = lm(mpg ~.-name+ log(displacement) + I((cylinders)^2), data = Auto)
+summary(lmFit2)
+```
+
+We notice in the previous models, that the value of adjusted R-squared has slightly increased and that all the new added terms are statistically significant. The RSS value is almost stable.
+
+However, this absence of big improvement could be explained by the fact that the relationship between `mpg` and the predictors could be closer to a linear model, which explains the ineffectiveness of the application of non-linear models.
