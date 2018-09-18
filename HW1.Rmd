@@ -183,8 +183,9 @@ knitr::kable(subset_mean_sd)
 * (e) Predictor Findings
 ```{r 2.4 9e, echo=TRUE, fig.height=10, fig.width=10, fig.align='center'}
 factor_vars = c("origin")
-Auto[factor_vars] = lapply(Auto[factor_vars], as.factor)
-pairs(Auto)
+newAuto = Auto
+newAuto[factor_vars] = lapply(Auto[factor_vars], as.factor)
+pairs(newAuto)
 ```
 
 From the scatter plots, we observer that:
@@ -198,10 +199,10 @@ From the scatter plots, we observer that:
 ```{r 2.4 9f, echo=TRUE, fig.height=3}
 par(mfrow = c(1,3))
 plot(mpg ~ cylinders + displacement + horsepower + weight + acceleration +
-       year + origin, data = Auto)
+       year + origin, data = newAuto)
 
 fit = lm(mpg ~ cylinders + displacement + horsepower + weight + acceleration +
-           year + origin, data = Auto)
+           year + origin, data = newAuto)
 summary(fit)
 ```
 
@@ -282,7 +283,7 @@ summary(lmFit)
 mean(mpg)
 ```
 
-i. Given that the p-value of the F-statistic is close to zero and the F-statistic is large than 1, we can reject the null-hypothesis stating that all regression coefficients are equal to zero, therefore, we can conclude that there is a significant relationship between horsepower and mpg.
+i. Given that the p-value of the F-statistic is close to zero and the F-statistic is larger than 1, we can reject the null-hypothesis stating that all regression coefficients are equal to zero, therefore, we can conclude that there is a significant relationship between horsepower and mpg.
 
 ii. First, the mean value for the response, which is mpg, is 23.446 and since the RSE of lmFit was 4.906, we can observe that the percentage error is about `r round(4.906*100/mean(mpg), digits=3)`%.
 Second, the $R^2$ of lmFit was about 0.6059 which reflects that 60.59% of the variance in mpg is explained by the predictor horsepower.
