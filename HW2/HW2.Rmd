@@ -1,0 +1,23 @@
+---
+title: "DS502- HW2"
+author: "Mahdi Alouane and Rahul Pande"
+output:
+  pdf_document:
+    # highlight: zenburn
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, tidy.opts=list(width.cutoff=60), tidy=TRUE)
+# https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
+```
+
+### 1.(5 points) Section 4.7, page 168, question 1
+### 2.(10 points) Section 4.7, page 169-170, question 5
+### 3.(5 points) Section 4.7, page 170, question 8
+### 4.(15 points) Section 4.7, page171, question 10
+### 5.(15 points) Section 4.7, page 171-172, question 11
+### 6.(10 points) Section 5.4, page 197, question 1
+### 7.(10 points) Section 5.4, page 197, question 2
+### 8.(15 points) Section 5.4, page 198, question 5
+### 9.(15 points) Section 5.4, page 199, question 6
