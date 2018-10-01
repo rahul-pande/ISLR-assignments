@@ -16,15 +16,30 @@ knitr::opts_chunk$set(echo = TRUE,
 ```
 
 ### 1.(5 points) Section 4.7, page 168, question 1
+
+(4.2) : $p(X) = \frac{e^{\beta_0 + \beta_1 x}}{1 + e^{\beta_0 + \beta_1 x}}$
+
+$\frac{p(X)}{1 - p(X)} = \frac{\frac{e^{\beta_0 + \beta_1 x}}{1 + e^{\beta_0 + \beta_1 x}}}{1- \frac{e^{\beta_0 + \beta_1 x}}{1 + e^{\beta_0 + \beta_1 x}}}$
+
+$= \frac{\frac{e^{\beta_0 + \beta_1 x}}{1 + e^{\beta_0 + \beta_1 x}}}{\frac{{1 + e^{\beta_0 + \beta_1 x}}}{{1 + e^{\beta_0 + \beta_1 x}}}- \frac{e^{\beta_0 + \beta_1 x}}{1 + e^{\beta_0 + \beta_1 x}}}$
+
+$= \frac{\frac{e^{\beta_0 + \beta_1 x}}{1 + e^{\beta_0 + \beta_1 x}}}{\frac{1}{1 + e^{\beta_0 + \beta_1 x}}}$
+
+$=e^{\beta_0 + \beta_1 x}$
+
+(4.3) : $\frac{p(X)}{1 - p(X)}=e^{\beta_0 + \beta_1 x}$
+
+Therefore (4.2) is equivalent to (4.3)
+
 ### 2.(10 points) Section 4.7, page 169-170, question 5
 
-a. If the Bayes' decision boundary is linear, QDA is expected to perform better since it is more flexible and will tend to overfit data. However, on the test data, LDA is expected to perform better since is expected to have lower variance than QDA. Owing to overfitting on the training data, QDA might perform worse on the test data than LDA
+a. If the Bayes' decision boundary is linear, QDA is expected to perform better on the train data since it is more flexible and will tend to overfit data. However, on the test data, LDA is expected to perform better since is expected to have lower variance than QDA. Owing to overfitting on the training data, QDA might perform worse on the test data than LDA
 
 b. If the Bayes' decision boundary is non-linear, QDA is expected to perform better on both train and test data since LDA will underfit and wil have high bias.
 
 c. QDA is more flexible than LDA. Therefore it suffers from higher variance. However, variance decreases with more data and the fit will be closer to the actual fit. Therefore, QDA is expected to have better test prediction accuracy with more number of samples.
 
-d. False. Following the previous pint, when there are few sample points, QDA will suffer from high variance since it will overfit train data. Therefore, it will have higher test error compared to LDA.
+d. False. Following the previous point, for a linear Bayes' decision boundary, when there are few sample points, QDA will suffer from high variance since it will overfit train data. Therefore, it will have higher test error compared to LDA.
 
 ### 3.(5 points) Section 4.7, page 170, question 8
 
@@ -44,7 +59,8 @@ data.weekly = Weekly
 summary(data.weekly)
 
 # standardize data
-data.weekly[ , colnames(data.weekly) != "Direction"] = scale(data.weekly[ , colnames(data.weekly) != "Direction"])
+data.weekly[ , colnames(data.weekly) != "Direction"] = scale(
+  data.weekly[ , colnames(data.weekly) != "Direction"])
 
 # pair plot
 pairs(data.weekly)
@@ -70,7 +86,9 @@ sapply(vars, plot_against_direction)
 b. 
 
 ```{r 4.7 10 b, echo=TRUE}
-logistic.fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = data.weekly, family = "binomial")
+logistic.fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume,
+                    data = data.weekly,
+                    family = "binomial")
 summary(logistic.fit)
 ```
 From the `summary` of the fit, we see that `Lag2` is a significant factor in predicting `Direction`
