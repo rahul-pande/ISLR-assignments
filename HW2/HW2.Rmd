@@ -18,6 +18,13 @@ knitr::opts_chunk$set(echo = TRUE,
 ### 1.(5 points) Section 4.7, page 168, question 1
 ### 2.(10 points) Section 4.7, page 169-170, question 5
 ### 3.(5 points) Section 4.7, page 170, question 8
+
+In the case of **logistic regression**, error rate shot up on test data which is an indicator that the model has **high variance**. Therefore the model will tend to perform poor on unseen data. There may be many reasons for this. Perhaps the the decision boundary is not linear.
+
+In the case of **1NN**, since all testing samples would be present in the training data and since the point closest to any point is the point itself, the training error is zero. This makes the testing error as 36% (with avg error rate as 18%).
+
+Although the information provided is not quite sufficient, we should prefer to use logistic model with lower test error rate and less difference between training and test error rate (more generalized)
+
 ### 4.(15 points) Section 4.7, page171, question 10
 
 a. 
