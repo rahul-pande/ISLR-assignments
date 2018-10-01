@@ -10,7 +10,6 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
                       tidy=TRUE,
-                      fig.height= 8,
                       fig.align='center',
                       tidy.opts=list(width.cutoff=60))
 # https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
@@ -173,9 +172,8 @@ plot_against_mpg01 <- function(y){
 
 sapply(vars, plot_against_mpg01)
 
-par(mfrow=c(2, 1))
-hist(Auto$cylinders[Auto$mpg01 == 0 ], xlab = "mpg == 0", freq = F, main = "histogram")
-hist(Auto$cylinders[Auto$mpg01 == 1 ], xlab = "mpg == 1", freq = F, main = "histogram")
+hist(Auto$cylinders[Auto$mpg01 == 0 ], xlab = "cylinders (mpg == 0)", main = "")
+hist(Auto$cylinders[Auto$mpg01 == 1 ], xlab = "cylinders (mpg == 1)", main = "")
 ```
 
 From the plots:
@@ -185,7 +183,91 @@ From the plots:
   + There is strong correlation between variables like `weight`, `horsepower`, `displacement`. So there's probably redundant information in these variables.
   
 c.
-```{r 4.7 11 c, echo=TRUE, results='hide'}
+```{r 4.7 11 c, echo=TRUE}
+perc_train <- 0.8
+n_rows <- nrow(Auto)
+n_train <- round(perc_train * n_rows)
+
+samples = sample(1:n_rows, n_train, replace=FALSE)
+train = logical(n_rows)
+train[samples] = TRUE
+test = !train
+
+train.data <- Auto[train, ]
+test.data <- Auto[test, ]
+
+dim(train.data)
+dim(test.data)
+```
+
+d.
+```{r 4.7 11 d, echo=TRUE}
+lda.fit <- lda(mpg01 ~ . -name -year -acceleration, data = train.data)
+
+lda_pred <- predict(lda.fit, test.data)$class
+lda_actual <- test.data$mpg01
+lda_conf_matrix <- table(lda_actual, lda_pred)
+message("Confusion matrix for lda model")
+lda_conf_matrix
+message("Error rate of LDA:")
+(lda_conf_matrix[2] + lda_conf_matrix[3])/sum(lda_conf_matrix)
+```
+
+e.
+```{r 4.7 11 e, echo=TRUE}
+qda.fit <- qda(mpg01 ~ . -name -year -acceleration, data = train.data)
+
+qda_pred <- predict(qda.fit, test.data)$class
+qda_actual <- test.data$mpg01
+qda_conf_matrix <- table(qda_actual, qda_pred)
+message("Confusion matrix for lda model")
+qda_conf_matrix
+message("Error rate of QDA:")
+(qda_conf_matrix[2] + qda_conf_matrix[3])/sum(qda_conf_matrix)
+```
+
+f. 
+```{r 4.7 11 f, echo=TRUE}
+consider.columns = !(names(train.data) %in% c("name", "year", "acceleration"))
+logistic.fit <- glm(mpg01 ~ ., data = train.data[, consider.columns], family = "binomial")
+summary(logistic.fit)
+
+pred <- round(predict(logistic.fit, test.data[, consider.columns], type = "response"))
+pred <- factor(x = pred, labels = c("0", "1"))
+actual <- test.data$mpg01
+conf_matrix <- table(actual, pred)
+message("Confusion matrix")
+conf_matrix
+message("Error rate for logistic regression:")
+(conf_matrix[2] + conf_matrix[3])/sum(conf_matrix)
+```
+
+g.
+```{r 4.7 11 g, echo=TRUE}
+knn_features <- !(names(train.data) %in% c("name", "year", "acceleration", "mpg01"))
+trainX <- as.matrix(train.data[, knn_features])
+testX <- as.matrix(test.data[, knn_features])
+
+calculate_knn<- function(i) {
+  set.seed(123)
+  knn_pred <- knn(trainX, testX, train.data$mpg01, k=i)
+  knn_actual <- test.data$mpg01
+  knn_conf_matrix <- table(knn_actual, knn_pred)
+  # sprintf("Confusion matrix for knn=1 model")
+  # print(knn_conf_matrix)
+  error_rate <- (knn_conf_matrix[2] + knn_conf_matrix[3])/sum(knn_conf_matrix)
+  return(c(i, error_rate))
+}
+
+k_data <- data.frame(t(sapply(seq(from=1, to=51, by=2), calculate_knn)))
+colnames(k_data) <- c("k", "error_rate")
+plot(error_rate ~ k, data=k_data)
+
+best_k <- k_data$k[k_data$error_rate == min(k_data$error_rate)]
+best_k <- paste(as.vector(best_k), collapse = ", ")
+
+sprintf("From the plot, k=%s seems to perform better on this dataset", best_k)
+```
 
 
 ### 6.(10 points) Section 5.4, page 197, question 1
