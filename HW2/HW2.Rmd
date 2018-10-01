@@ -8,7 +8,11 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, tidy.opts=list(width.cutoff=60), tidy=TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      tidy=TRUE,
+                      fig.height= 8,
+                      fig.align='center',
+                      tidy.opts=list(width.cutoff=60))
 # https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
 ```
 
@@ -16,7 +20,174 @@ knitr::opts_chunk$set(echo = TRUE, tidy.opts=list(width.cutoff=60), tidy=TRUE)
 ### 2.(10 points) Section 4.7, page 169-170, question 5
 ### 3.(5 points) Section 4.7, page 170, question 8
 ### 4.(15 points) Section 4.7, page171, question 10
+
+a. 
+```{r 4.7 10 a, echo=TRUE, fig.height= 8, fig.align='center', results='hide'}
+require(ISLR)
+data("Weekly")
+data.weekly = Weekly
+summary(data.weekly)
+
+# standardize data
+data.weekly[ , colnames(data.weekly) != "Direction"] = scale(data.weekly[ , colnames(data.weekly) != "Direction"])
+
+# pair plot
+pairs(data.weekly)
+
+# box plots w.r.t. response variables
+par(mfrow=c(3,3))
+
+vars = setdiff(names(Weekly), c("Today", "Direction"))
+
+plot_against_direction <- function(y){
+  x = "Direction"
+  f <- as.formula(paste(c(y, x), collapse = " ~ "))
+  boxplot(f, data= Weekly, ylab = y, xlab = x)
+}
+
+sapply(vars, plot_against_direction)
+```
+
++ `Year` is non-linearly related to `Volume`. At first, `Volume` increases rapidly with `Year` but then becomes constant.
++ From the shape of graphs of `Year` against `Lag` variables, the variability in `Lag` vars is higher in the middle and in the end `Year`
++ Similarly, the variablility in `Lag` variables is higher towards either end (high or low) of `Volume` than the middle region.
+
+b. 
+
+```{r 4.7 10 b, echo=TRUE}
+logistic.fit <- glm(Direction ~ Lag1 + Lag2 + Lag3 + Lag4 + Lag5 + Volume, data = data.weekly, family = "binomial")
+summary(logistic.fit)
+```
+From the `summary` of the fit, we see that `Lag2` is a significant factor in predicting `Direction`
+
+c. 
+
+```{r 4.7 10 c, echo=TRUE}
+pred <- round(predict(logistic.fit, data.weekly, type = "response"))
+pred <- factor(x = pred, labels = c("Down", "Up"))
+actual <- data.weekly$Direction
+conf_matrix <- table(actual, pred)
+message("Confusion matrix")
+conf_matrix
+message("Fraction of correct predictions:")
+(conf_matrix[1] + conf_matrix[4])/sum(conf_matrix)
+```
+
+Consider that the logistic model is predicting "is the return positive (`Up`)?"
+Now from the confusion matrix the model is making `430` **type 1** errors and `48` **type 2** errors
+
+d. 
+
+```{r 4.7 10 d, echo=TRUE}
+train.data <- data.weekly[Weekly$Year <= 2008, ]
+heldout.data <- data.weekly[Weekly$Year > 2008, ]
+
+lag2.fit <- glm(Direction ~ Lag2, data = train.data, family = "binomial")
+
+lag2_pred <- round(predict(lag2.fit, heldout.data, type = "response"))
+lag2_pred <- factor(x = lag2_pred, labels = c("Down", "Up"))
+lag2_actual <- heldout.data$Direction
+lag2_conf_matrix <- table(lag2_actual, lag2_pred)
+message("Confusion matrix for Lag2 model")
+lag2_conf_matrix
+message("Fraction of correct predictions:")
+(lag2_conf_matrix[1] + lag2_conf_matrix[4])/sum(lag2_conf_matrix)
+
+```
+
+e.
+
+```{r 4.7 10 e, echo=TRUE}
+require(MASS)
+lda.fit <- lda(Direction ~ Lag2, data = train.data)
+
+lda_pred <- predict(lda.fit, heldout.data)$class
+lda_actual <- heldout.data$Direction
+lda_conf_matrix <- table(lda_actual, lda_pred)
+message("Confusion matrix for lda model")
+lda_conf_matrix
+message("Fraction of correct predictions:")
+(lda_conf_matrix[1] + lda_conf_matrix[4])/sum(lda_conf_matrix)
+```
+
+f.
+
+```{r 4.7 10 f, echo=TRUE}
+
+qda.fit <- qda(Direction ~ Lag2, data = train.data)
+
+qda_pred <- predict(qda.fit, heldout.data)$class
+qda_actual <- heldout.data$Direction
+qda_conf_matrix <- table(qda_actual, qda_pred)
+message("Confusion matrix for lda model")
+qda_conf_matrix
+message("Fraction of correct predictions:")
+(qda_conf_matrix[1] + qda_conf_matrix[4])/sum(qda_conf_matrix)
+
+```
+g.
+
+```{r 4.7 10 g, echo=TRUE}
+require(class)
+
+set.seed(123)
+
+trainX <- as.matrix(train.data$Lag2)
+testX <- as.matrix(heldout.data$Lag2)
+knn_pred <- knn(trainX, testX, train.data$Direction, k=1)
+knn_actual <- heldout.data$Direction
+knn_conf_matrix <- table(knn_actual, knn_pred)
+message("Confusion matrix for knn=1 model")
+knn_conf_matrix
+message("Fraction of correct predictions:")
+(knn_conf_matrix[1] + knn_conf_matrix[4])/sum(knn_conf_matrix)
+```
+
+h. (i)
+After experimenting with interaction variables, k and variable transformation, we conclude that Logistic Regression and LDA work best for the `Weekly` dataset.
+
 ### 5.(15 points) Section 4.7, page 171-172, question 11
+
+a.
+```{r 4.7 11 a, echo=TRUE, fig.height= 8, fig.align='center', results='hide'}
+data("Auto")
+Auto$mpg01 <- ifelse(Auto$mpg > median(Auto$mpg), 1, 0)
+Auto = Auto[, names(Auto) != "mpg"]
+Auto$mpg01 <- as.factor(Auto$mpg01)
+
+```
+
+b.
+```{r 4.7 11 b, echo=TRUE, fig.height= 8, fig.align='center', results='hide'}
+pairs(Auto)
+
+par(mfrow=c(3,3))
+
+vars = setdiff(names(Auto), c("mpg01", "name"))
+
+plot_against_mpg01 <- function(y){
+  x = "mpg01"
+  f <- as.formula(paste(c(y, x), collapse = " ~ "))
+  boxplot(f, data = Auto, ylab = y, xlab = x)
+}
+
+sapply(vars, plot_against_mpg01)
+
+par(mfrow=c(2, 1))
+hist(Auto$cylinders[Auto$mpg01 == 0 ], xlab = "mpg == 0", freq = F, main = "histogram")
+hist(Auto$cylinders[Auto$mpg01 == 1 ], xlab = "mpg == 1", freq = F, main = "histogram")
+```
+
+From the plots:
+
+  + From the boxplot of `cylinders` vs `mpg01`, `cylinders` is probably the most important predictor of `mpg`. Most of the `1` class are at 4 cylinders.
+  + `weight` could be a good predictor of `mpg01` since the boxplot shows that the medians are quite apart and overlap is small. Similarly, `displacement` and `horsepower` could also be good predictors.
+  + There is strong correlation between variables like `weight`, `horsepower`, `displacement`. So there's probably redundant information in these variables.
+  
+c.
+```{r 4.7 11 c, echo=TRUE, results='hide'}
+
+
 ### 6.(10 points) Section 5.4, page 197, question 1
 ### 7.(10 points) Section 5.4, page 197, question 2
 ### 8.(15 points) Section 5.4, page 198, question 5
