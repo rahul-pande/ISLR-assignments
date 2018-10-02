@@ -340,6 +340,80 @@ $\frac{\partial^2}{\partial\alpha^2}\mathrm{Var}(\alpha X + (1 - \alpha) Y) = 2\
 Then, $\alpha = \frac{\sigma_Y^2-\sigma_{XY}}{\sigma_X^2+\sigma_Y^2-2\sigma_{XY}}$ is a minimum.
 
 ### 7.(10 points) Section 5.4, page 197, question 2
+
+a.
+
+Let's consider $p'$ the probabilty that the first bootstrap observation *is* the jth observation from the original sample. Hence, $p' = \frac{1}{n}$.
+
+So the probability that the first bootstrap observation *is not* the jth observation from the original sample $p = 1 - p' = 1 - \frac{1}{n}$
+
+Another way to explain is that the number of elements exculding the jth elements in the original observation is $n - 1$, hence, the probability to pick any item except the jth is $p = \frac{n-1}{n} = 1 - \frac{1}{n}$
+
+b.
+
+Given the fact that we are using a sampling with replacement, during each iteration, the set of observations will be the same as the initial one, that's said, the probability that the second bootstrap observation is not the jth observation from the original sample is the same as above.
+$p = \frac{n-1}{n} = 1 - \frac{1}{n}$
+
+c.
+
+We know that the probility that the ith bootstrap observation is not the jth observation from the original sample is $p = \frac{n-1}{n} = 1 - \frac{1}{n}$ and that the total bootstrapping size is $n$.
+
+As we are sampling with replacement, all the probabilities of the observations are independent of one another.
+
+So, the probability that the jth observation is not in the bootstrap sample is $p^n = (1 - \frac{1}{n})^n $
+
+d.
+
+The probability that the jth observation is in the bootstrap sample is $p_d = 1 - p^5 = 1 - (1 - \frac{1}{n})^n$
+
+With $n=5$, $p_d = 1 - (1 - \frac{1}{5})^5 = 0.672$
+
+e.
+
+With $n=100$, $p_d = 1 - (1 - \frac{1}{100})^{100} = 0.634$
+
+
+f.
+
+With $n=10000$, $p_d = 1 - (1 - \frac{1}{10000})^{10000} = 0.632$
+
+g.
+
+```{r 5.4 2 g}
+# Assign to x the integer sequence of range (1,100000)
+x=1:100000
+
+# Apply the function of probabilty to the previous sequence
+y=sapply(x,function(n){1-((1-(1/n))^n)})
+
+# Display the curve
+plot(x,y,xlab="n",ylab="Pd",log="x")
+```
+
+The probability seems to reach an asymptote quickly around $0.63$ for around $n=100$ which could be explained by the fact that there is for these cases 63% chance that a given observation will be in the bootstrap sample even for datasets containing a large number of observations.
+
+h.
+
+```{r 5.4 2 h}
+#set.seed(211)
+store=rep(NA, 10000)
+for(i in 1:10000){
+  store[i]=sum(sample(1:100, rep=TRUE)==4)>0 
+}
+mean(store)
+```
+
+The algorithm above creates a list of length 10000, then iteratively samples 100 times with replacement checking if the 4th element is in the list. We observe again that the probability is around 0.632 (for seed=211, it is equal to 0.638).
+
+We know that,
+
+$\lim_{n\rightarrow\infty}(1 + x/n)^n = e^x$
+
+Hence, 
+$\lim_{n\rightarrow\infty}1-((1-(1/n))^n) = 1 - e^{-1} = 1 - \frac{1}{e} = 0.632$
+
+Which explains the asymptote that the curve follows in the previous question.
+
 ### 8.(15 points) Section 5.4, page 198, question 5
 
 a. 
