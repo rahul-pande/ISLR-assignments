@@ -360,7 +360,7 @@ We know that the probility that the ith bootstrap observation is not the jth obs
 
 As we are sampling with replacement, all the probabilities of the observations are independent of one another.
 
-So, the probability that the jth observation is not in the bootstrap sample is $p^n = (1 - \frac{1}{n})^n $
+So, the probability that the jth observation is not in the bootstrap sample is $p^n = (1 - \frac{1}{n})^n$
 
 d.
 
