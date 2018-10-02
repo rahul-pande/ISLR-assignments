@@ -305,6 +305,40 @@ sprintf("From the plot, k=%s seems to perform better on this dataset", best_k)
 
 
 ### 6.(10 points) Section 5.4, page 197, question 1
+
+We know that:
+
+$\mathrm{Var}(X+Y) = \mathrm{Var}(X) + \mathrm{Var}(Y) + 2 \mathrm{Cov}(X,Y)$
+
+$\mathrm{Var}(aX) = a^2\mathrm{Var}(X)$
+
+And $\mathrm{Cov}(aX,bY) = ab\mathrm{Cov}(X,Y)$
+
+So, 
+
+$\mathrm{Var}(\alpha X + (1 - \alpha) Y) = \alpha^2 \mathrm{Var}(X) + (1-\alpha)^2 \mathrm{Var}(Y) + 2 \alpha (1-\alpha)\mathrm{Cov}(X,Y)$
+
+$= \sigma_{X}^2 \alpha^2 + \sigma_{Y}^2 (1-\alpha)^2 + 2\sigma_{XY}(\alpha -\alpha^2)$
+
+In order to minimize $\mathrm{Var}(\alpha X + (1 - \alpha) Y)$, we derive this quantity respect to $\alpha$ to find the critical points.
+$\frac{\partial}{\partial\alpha}\mathrm{Var}(\alpha X + (1 - \alpha) Y) = 2\alpha\sigma_X^2 - 2\sigma_Y^2 + 2\alpha\sigma_Y^2 + 2\sigma_{XY} - 4\alpha\sigma_{XY}  = 2\alpha (\sigma_X^2+\sigma_Y^2-2\sigma_{XY}) - 2 (\sigma_Y^2-\sigma_{XY})$ 
+
+Hence, the critical points correspond to $\alpha$ where the previous equation is equal to 0.
+
+Meaning,
+
+$\alpha (\sigma_X^2+\sigma_Y^2-2\sigma_{XY}) - (\sigma_Y^2-\sigma_{XY}) = 0$
+
+So,
+
+$\alpha = \frac{\sigma_Y^2-\sigma_{XY}}{\sigma_X^2+\sigma_Y^2-2\sigma_{XY}}$
+
+Now that we know that $\alpha$ is a critical point, we should prove that it corresponds to a minimum. For this, we should consider the second derivative of $\mathrm{Var}(\alpha X + (1 - \alpha) Y)$ and prove that it is positive.
+
+$\frac{\partial^2}{\partial\alpha^2}\mathrm{Var}(\alpha X + (1 - \alpha) Y) = 2\sigma_X^2 + 2\sigma_Y^2 - 4\sigma_{XY} = 2\mathrm{Var}(X - Y)\ge 0$
+
+Then, $\alpha = \frac{\sigma_Y^2-\sigma_{XY}}{\sigma_X^2+\sigma_Y^2-2\sigma_{XY}}$ is a minimum.
+
 ### 7.(10 points) Section 5.4, page 197, question 2
 ### 8.(15 points) Section 5.4, page 198, question 5
 
