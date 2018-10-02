@@ -307,4 +307,120 @@ sprintf("From the plot, k=%s seems to perform better on this dataset", best_k)
 ### 6.(10 points) Section 5.4, page 197, question 1
 ### 7.(10 points) Section 5.4, page 197, question 2
 ### 8.(15 points) Section 5.4, page 198, question 5
+
+a. 
+The following code builds a logistic regression model based on all the instances of the dataset Default using `income` and `balance` to predict `default` 
+
+```{r 5.4 5 a}
+# Import the library ISLR
+library(ISLR)
+# Attach Default as the default dataset
+attach(Default)
+# Fix the random seed
+set.seed(5)
+# Build a logistic regression model
+glmFit = glm(default ~ income + balance, data = Default, family = "binomial")
+# Print the model details
+summary(glmFit)
+
+```
+
+b. (i)
+We begin by splitting the sample set into training and validation sets (80%/20%)
+
+``` {r 5.4 5 b i}
+# Get the sample indices
+indices = sample(1:nrow(Default),nrow(Default)*0.8)
+# Assign the training subset to a variable
+trainingSet = Default[indices, ]
+# Assign the testing subset to a variable
+testingSet = Default[-indices,]
+```
+
+(ii)
+
+``` {r 5.4 5 b ii}
+# Train a logistic regression model using the training set only
+trainFit = glm(default ~ income + balance, data = trainingSet, family = "binomial")
+# Display the model details
+summary(trainFit)
+```
+
+(iii)
+
+``` {r 5.4 5 b iii}
+# Predict the default values of the testing set using the built model (with training set)
+prediction = predict(trainFit,testingSet,type="response")
+
+# Classify the default category of the default value
+class = ifelse(prediction > 0.5,"Yes","No")
+
+# Display the confusion matrix (in a table)
+table(testingSet$default, class, dnn=c("Actual","Predicted"))
+```
+
+(iv)
+``` {r 5.4 5 b iv}
+# Compute the validation set error
+mean(class!=testingSet$default)
+```
+
+c.
+We repeat the same process three times by changing the apportionment of data into training and testing sets.
+``` {r 5.4 5 c i}
+# First sample (70%/30%)
+indices = sample(1:nrow(Default),nrow(Default)*0.7)
+trainingSet = Default[indices, ]
+testingSet = Default[-indices,]
+trainFit = glm(default ~ income + balance, data = trainingSet, family = "binomial")
+prediction = predict(trainFit,testingSet,type="response")
+class = ifelse(prediction > 0.5,"Yes","No")
+table(testingSet$default, class, dnn=c("Actual","Predicted"))
+mean(class!=testingSet$default)
+```
+
+``` {r 5.4 5 c ii}
+# Second sample (50%/50%)
+indices = sample(1:nrow(Default),nrow(Default)*0.5)
+trainingSet = Default[indices, ]
+testingSet = Default[-indices,]
+trainFit = glm(default ~ income + balance, data = trainingSet, family = "binomial")
+prediction = predict(trainFit,testingSet,type="response")
+class = ifelse(prediction > 0.5,"Yes","No")
+table(testingSet$default, class, dnn=c("Actual","Predicted"))
+mean(class!=testingSet$default)
+```
+
+``` {r 5.4 5 c iii}
+# Third sample (10%/90%)
+indices = sample(1:nrow(Default),nrow(Default)*0.1)
+trainingSet = Default[indices, ]
+testingSet = Default[-indices,]
+trainFit = glm(default ~ income + balance, data = trainingSet, family = "binomial")
+prediction = predict(trainFit,testingSet,type="response")
+class = ifelse(prediction > 0.5,"Yes","No")
+table(testingSet$default, class, dnn=c("Actual","Predicted"))
+mean(class!=testingSet$default)
+```
+
+We can observe that the value of the validation error is different for each sample of data even though it is taken from the same dataset. That indicates that the error is dependent on the composition of the training and testing subsets. However, as illustrated by the last sample, which uses an uncommon ratio (only 10% for training), the error is not linearly dependent on the amount of data used to train the model since the error for the last error is less than the validation error for the 50/50 sample.
+
+d.
+
+In this example, we use the 80/20 ratio for sampling our data (since it has the lowest error) and predict the values of `default` using a logistic regression model based on `income`, `balance` and `student`.
+
+``` {r 5.4 5 d}
+# We add the dummy variable student to the logistic regression model
+indices = sample(1:nrow(Default),nrow(Default)*0.8)
+trainingSet = Default[indices, ]
+testingSet = Default[-indices,]
+trainFit = glm(default ~ income + balance + student, data = trainingSet, family = "binomial")
+prediction = predict(trainFit,testingSet,type="response")
+class = ifelse(prediction > 0.5,"Yes","No")
+table(testingSet$default, class, dnn=c("Actual","Predicted"))
+mean(class!=testingSet$default)
+```
+
+We notice that the validation error is reduced after adding the dummy variable `student` to the model.
+
 ### 9.(15 points) Section 5.4, page 199, question 6
