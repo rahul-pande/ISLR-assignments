@@ -2,7 +2,6 @@
 title: "DS502- HW3"
 author: "Mahdi Alouane and Rahul Pande"
 output:
-<<<<<<< HEAD
   pdf_document:
     # highlight: zenburn
     latex_engine: xelatex
@@ -131,9 +130,12 @@ lapply(vars, function(m){
   })
 
 coefficients(reg.fit, id = 5)
+coefficients(reg.fit, id = 2)
+coefficients(reg.fit, id = 1)
 ```
+We see from bic optimization we get only x3 as best subset (2 coefficient). For cp we have 5 significant coefficients and this appears to be the most close model to the actual function.
 
-```{r 6.8 8 d}
+```{r 6.8 8 d 1, message=FALSE}
 
 ## forward selection
 reg.fit.forward <- regsubsets(Y ~ poly(x, 10, raw = TRUE), data = data_, nvmax = 100,
@@ -151,7 +153,12 @@ lapply(vars, function(m){
   })
 
 coefficients(reg.fit.forward, id = 3)
+coefficients(reg.fit.forward, id = 2)
+coefficients(reg.fit.forward, id = 1)
+```
+We see that with forward selection with cp (3 feature subset) we have a close approximation of the actual function. With bic, beta1, which is the smallest coefficient, is suppressed.
 
+```{r 6.8 8 d 2, message=FALSE}
 
 ## backward selection
 reg.fit.backward <- regsubsets(Y ~ poly(x, 10, raw = TRUE), data = data_, nvmax = 100,
@@ -170,7 +177,55 @@ lapply(vars, function(m){
   })
 
 coefficients(reg.fit.backward, id = 5)
+coefficients(reg.fit.backward, id = 1)
 ```
+With backward selection we have 5 feature set as the best set with bic and cp criteria. With adjr2 we only have one, which is incorrect.
+
+```{r 6.8 8 e}
+library(glmnet)
+xmatrix = model.matrix(Y ~ poly(x, 10, raw = T), data = data_)[, -1]
+fit.lasso = cv.glmnet(xmatrix, Y, alpha = 1)
+best.lambda = fit.lasso$lambda.min
+cat(best.lambda)
+
+plot(fit.lasso)
+
+
+best.fit = glmnet(xmatrix, Y, alpha = 1)
+predict(best.fit, s = best.lambda, type = "coefficients")
+
+```
+
+We see that X4, X6-10 are not chosen and the corresponding coeff are made zero by lasso.
+
+```{r 6.8 8 f 1}
+beta7 = 5
+Y = beta0 * 1 + beta7 * x^7 + noise
+
+data_ = data.frame(y = Y, x = x)
+reg.fit = regsubsets(y ~ poly(x, 10, raw = T), data = data_, nvmax = 10)
+
+reg.fit.summary <- summary(reg.fit)
+plot.data <- summary.as.data.frame(reg.fit.summary, vars)
+plot.data$n <- as.numeric(rownames(plot.data))
+
+lapply(plot.data, function(x){which(x == min(x))})
+
+coefficients(reg.fit, id = 1)
+```
+We see that best subset selection algorithm selects x7 as the best predictor. Also from all bic, adjr2, cp we have only one predictor as feature set.
+
+```{r 6.8 8 f 2}
+# lasso
+xmatrix = model.matrix(Y ~ poly(x, 10, raw = T), data = data_)[, -1]
+fit.lasso = cv.glmnet(xmatrix, Y, alpha = 1)
+best.lambda = fit.lasso$lambda.min
+cat(best.lambda)
+
+best.fit = glmnet(xmatrix, Y, alpha = 1)
+predict(best.fit, s = best.lambda, type = "coefficients")
+```
+We can see that lasso selects X7 (4.839) and suppresses other coeff. The prediction for intercept (5.6) is off from the actual (4).
 
 
 ### 4.(15 points) Section 6.8, page 263, question 9
@@ -337,13 +392,18 @@ plsR2 <- 1 - mean((predPls - test$Apps)^2) / mean((avg - test$Apps)^2)
 
 In the table below, we can observe a summary of the previously calculated MSE and $R^2$ for all the five models fitted.
 
-| | MSE | $R^2$ |
-|----------|:-------------:|------:|
-| Linear Model |  `r lmMSE` | `r lmR2` |
-| Ridge | `r ridgeMSE` | `r ridgeR2` |
-| Lasso | `r lassoMSE` | `r lassoR2` |
-| PCR | `r pcrMSE` | `r pcrR2` |
-| PLS | `r plsMSE` | `r plsR2` |
+```{r table2, echo=FALSE, message=FALSE, warnings=FALSE, results='asis'}
+tabl <- "
+|              |      MSE     |    $R^2$    |
+|--------------|-------------:|------------:|
+| Linear Model |  `r lmMSE`   | `r lmR2`    |
+| Ridge        | `r ridgeMSE` | `r ridgeR2` |
+| Lasso        | `r lassoMSE` | `r lassoR2` |
+| PCR          | `r pcrMSE`   | `r pcrR2`   |
+| PLS          | `r plsMSE`   | `r plsR2`   |
+"
+cat(tabl)
+```
 
 We can note that all the models share the same performance except for the "Lasso regression" which presents a slightly lower MSE and higher $R^2$. So, in this example, the Lasso regression performs a bit better than the other models in predicting the number of college applications even though the other models are able to predict it with a high accuracy.
 
