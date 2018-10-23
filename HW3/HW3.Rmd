@@ -2,6 +2,7 @@
 title: "DS502- HW3"
 author: "Mahdi Alouane and Rahul Pande"
 output:
+<<<<<<< HEAD
   pdf_document:
     # highlight: zenburn
     latex_engine: xelatex
@@ -15,7 +16,80 @@ knitr::opts_chunk$set(echo = TRUE,
 # https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
 ```
 
-### 3. (15 points) Section 6.8, page 262-263, question 8
+### 1.(10 points) Section 6.8, page 259, question 1
+
+a. When performing best subset selection, the algorithm will consider all the possible models with `k` predictors and choose the one that performs the best based on the training dataset. Hence, the best subset selection approach will provide us with the model resulting in the smallest training RSS.
+
+b. As explained above, the best subset selection approach will consider all the possible models and choose the best among them, so, we would expect it to perform better than the forward and backward stepwise selection even on the testing dataset (smallest test RSS).
+However, since it is based on the training set, in some cases, we might see the forward or backward stepwise selection outperform the best subset approach on the testing dataset by pure chance.
+
+c. 
+
+(i) True
+
+In each step, the forward stepwise selection approach augments the k-variable model by one variable in order to obtain the (k+1)-variable model, so, all the predicors contained in the k-variable model are contained in the (k+1)-variable model.
+
+(ii) True
+
+In each step, the backward stepwise selection removes from the (k+1)-variable model one variable in order to obtain the k-variable model, so, all the predicors contained in the k-variable model are contained in the (k+1)-variable model.
+
+(iii) False
+
+The models obtained by the backward and forward stepwise selection are completely different and are not related, hence, there is no guarantee that the predictors of the k-variable model identified by backward stepwise are a subset of the predictors in the (k + 1)-variable model identified by forward stepwise selection.
+
+(iv) False
+
+The models obtained by the backward and forward stepwise selection are completely different and are not related, hence, there is no guarantee that the predictors of the k-variable model identified by forward stepwise are a subset of the predictors in the (k + 1)-variable model identified by backward stepwise selection.
+
+(v) False
+
+For each `k` as number of predictors, the best subset selection approach will consider all the possible models and choose the best among them. For `k+1` predictors, the model obtained does not necessarily contain all the predictors contained in the k-variable model since it is going to choose the best subset of predictors among all the possible (k+1)-variable models.
+
+### 2.(10 points) Section 6.8, page 261, question 6
+
+a.
+
+``` {r 6.8 6 a}
+# Initialize values
+y = 1
+lambda = 1
+beta = seq(-5, 5, .05)
+
+# Plot the ridge optimization vs beta
+plot(beta, (y - beta)^2 + lambda * beta^2, xlab = "Beta", ylab = "Ridge")
+
+# Calculate the ridge regression estimation of Beta (equation 6.14)
+betaEst = y / (1 + lambda)
+ridgeBetaEst = (y - betaEst)^2 + lambda * betaEst^2
+
+# Add the point of BetaEst to the plot
+points(betaEst, ridgeBetaEst, col = "green", lwd = 5)
+```
+
+As displayed on the plot, we could observe that the function in (6.12) is minimal at the point (`r betaEst`,`r ridgeBetaEst`).
+
+b.
+
+``` {r 6.8 6 b}
+# Initialize values
+y = 1
+lambda = 1
+beta = seq(-5, 5, .05)
+
+# Plot the lasso optimization vs beta
+plot(beta, (y - beta)^2 + lambda * abs(beta), xlab = "Beta", ylab = "Lasso")
+
+# Calculate the lasso regression estimation of Beta (equation 6.15)
+betaEst = y  - lambda / 2
+ridgeBetaEst = (y - betaEst)^2 + lambda * abs(betaEst)
+
+# Add the point of BetaEst to the plot
+points(betaEst, ridgeBetaEst, col = "green", lwd = 5)
+```
+We know that $y > \frac{\lambda}{2}$, then, the lasso estimation is $\beta_e = y - \frac{\lambda}{2}$.
+As displayed on the plot, we could observe that the function in (6.14) is minimal at the point (`r betaEst`,`r ridgeBetaEst`).
+
+### 3.(15 points) Section 6.8, page 262-263, question 8
 
 ```{r 6.8 8 a}
 set.seed(123)
@@ -99,4 +173,178 @@ coefficients(reg.fit.backward, id = 5)
 ```
 
 
-### 4. (15 points) Section 6.8, page263, question 9
+### 4.(15 points) Section 6.8, page 263, question 9
+
+a.
+
+``` {r 6.8 9 a}
+# Load the library and the dataset
+library(ISLR)
+attach(College)
+
+# Set random seed
+set.seed(99)
+
+# Splitting the data according to a 70/30 ratio
+split = sample(nrow(College),nrow(College)*0.7)
+train = College[split,]
+test = College[-split,]
+
+```
+
+b.
+
+``` {r 6.8 9 b}
+# Fit a linear model on the training set
+fitLm <- lm(Apps ~ ., data = train)
+
+# Predict the values of the testing set using the model
+predLm <- predict(fitLm, test)
+
+# Calculate and display the MSE
+lmMSE = mean((predLm - test$Apps)^2)
+lmMSE
+
+```
+
+c.
+
+``` {r 6.8 9 c, message=FALSE}
+ 
+# Create a matrix for the training and testing sets
+trainMat = model.matrix(Apps~.,data=train)
+testMat = model.matrix(Apps~.,data=test)
+
+# Define a grid to cover the range of lambda
+grid = 10^seq(4,-2,length=100)
+
+# Fit the ridge regression
+library(glmnet)
+ridge = glmnet(trainMat,train$Apps,alpha=0,lambda=grid,thresh = 1e-12)
+
+# Cross validating the model
+crossVRidge = cv.glmnet(trainMat,train$Apps,alpha=0,lambda=grid,thresh=1e-12)
+
+# Find the minimum lambda for which the cross validation error is minimal
+estRidge = crossVRidge$lambda.min
+
+# Use this lambda value directly on the testing set to predict
+predRidge <-predict(ridge, s=estRidge, newx=testMat)
+
+# Calculate and display the MSE
+ridgeMSE = mean((test$Apps-predRidge)^2)
+ridgeMSE
+
+```
+
+d.
+
+``` {r 6.8 9 d, message=FALSE}
+
+# Fit the lasso regression
+lasso = glmnet(trainMat, train$Apps, alpha = 1, lambda = grid, thresh = 1e-12)
+
+# Cross validating the model
+crossVLasso = cv.glmnet(trainMat, train$Apps, alpha = 1, lambda = grid, thresh = 1e-12)
+
+# Find the minimum lambda for which the cross validation error is minimal
+estLasso = crossVLasso$lambda.min
+
+# Use this lambda value directly on the testing set to predict
+predLasso = predict(lasso, s = estLasso, newx = testMat)
+
+# Calculate and display the MSE
+lassoMSE = mean((predLasso - test$Apps)^2)
+lassoMSE
+
+```
+
+e.
+
+``` {r 6.8 9 e i, message=FALSE}
+ 
+# Import the library
+library(pls)
+
+# Fit a pcr model on the training set
+pcrFit = pcr(Apps ~ ., data = train, scale = TRUE, validation = "CV")
+
+# Plot MSEP vs the number of predictors for PCR
+validationplot(pcrFit, val.type="MSEP")
+
+```
+
+``` {r 6.8 9 e ii, message=FALSE}
+# Choose the number of components based on the previous plot 
+predPcr <- predict(pcrFit, test, ncomp = 17)
+
+# Calculate and display the MSE
+pcrMSE = mean((predPcr - test$Apps)^2)
+pcrMSE
+
+```
+
+f.
+
+``` {r 6.8 9 f i, message=FALSE}
+ 
+# Import the library
+library(pls)
+
+# Fit a pcr model on the training set
+plsFit = plsr(Apps ~ ., data = train, scale = TRUE, validation = "CV")
+
+# Plot MSEP vs the number of predictors for PLS
+validationplot(plsFit, val.type="MSEP")
+
+```
+
+``` {r 6.8 9 f ii, message=FALSE}
+# Choose the number of components based on the previous plot 
+predPls <- predict(plsFit, test, ncomp = 15)
+
+# Calculate and display the MSE
+plsMSE = mean((predPls - test$Apps)^2)
+plsMSE
+
+```
+
+g.
+
+Let's first calculate the test $R^2$ for all the models fitted.
+
+``` {r 6.8 9 g}
+
+# Calculate the mean of apps in the testing set
+avg = mean(test$Apps)
+
+# Calculate the R2 for the linear model
+lmR2 = 1 - mean((predLm - test$Apps)^2) / mean((avg - test$Apps)^2)
+
+# Calculate the R2 for the ridge regression model
+ridgeR2 <- 1 - mean((predRidge - test$Apps)^2) / mean((avg - test$Apps)^2)
+
+# Calculate the R2 for the lasso regression model
+lassoR2 <- 1 - mean((predLasso - test$Apps)^2) / mean((avg - test$Apps)^2)
+
+# Calculate the R2 for the PCR model
+pcrR2 <- 1 - mean((predPcr - test$Apps)^2) / mean((avg - test$Apps)^2)
+
+# Calculate the R2 for the PLS model
+plsR2 <- 1 - mean((predPls - test$Apps)^2) / mean((avg - test$Apps)^2)
+
+```
+
+In the table below, we can observe a summary of the previously calculated MSE and $R^2$ for all the five models fitted.
+
+| | MSE | $R^2$ |
+|----------|:-------------:|------:|
+| Linear Model |  `r lmMSE` | `r lmR2` |
+| Ridge | `r ridgeMSE` | `r ridgeR2` |
+| Lasso | `r lassoMSE` | `r lassoR2` |
+| PCR | `r pcrMSE` | `r pcrR2` |
+| PLS | `r plsMSE` | `r plsR2` |
+
+We can note that all the models share the same performance except for the "Lasso regression" which presents a slightly lower MSE and higher $R^2$. So, in this example, the Lasso regression performs a bit better than the other models in predicting the number of college applications even though the other models are able to predict it with a high accuracy.
+
+However, when we change the random seed, we can observe that this is not always the case (that Lasso performs better) but in almost all the cases, the difference between the models' performances is not huge.
