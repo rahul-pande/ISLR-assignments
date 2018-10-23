@@ -1,0 +1,102 @@
+---
+title: "DS502- HW3"
+author: "Mahdi Alouane and Rahul Pande"
+output:
+  pdf_document:
+    # highlight: zenburn
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      tidy=TRUE,
+                      fig.align='center',
+                      tidy.opts=list(width.cutoff=60))
+# https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
+```
+
+### 3. (15 points) Section 6.8, page 262-263, question 8
+
+```{r 6.8 8 a}
+set.seed(123)
+x = rnorm(100)
+noise = rnorm(100)
+```
+
+```{r 6.8 8 b}
+beta0 = 4
+beta1 = 0.3
+beta2 = 1
+beta3 = 3
+Y = beta0 * 1 + beta1 * x + beta2 * x^2 + beta3 * x^3 + noise
+```
+
+```{r 6.8 8 c}
+library(leaps)
+data_ <- data.frame(y = Y, x = x)
+reg.fit <- regsubsets(Y ~ poly(x, 10, raw = TRUE), data = data_, nvmax = 100)
+
+summary(reg.fit)
+names(summary(reg.fit))
+
+summary.as.data.frame <- function(df, vars){
+  return(data.frame(lapply(vars, function(x){df[x]})))
+}
+
+reg.fit.summary <- summary(reg.fit)
+
+vars <- c("cp", "bic", "adjr2")
+plot.data <- summary.as.data.frame(reg.fit.summary, vars)
+plot.data$n <- as.numeric(rownames(plot.data))
+
+lapply(plot.data, function(x){which(x == min(x))})
+
+par(mfrow=c(2,2))
+lapply(vars, function(m){
+  plot(formula(stringr::str_interp("${m} ~ n")), plot.data)
+  })
+
+coefficients(reg.fit, id = 5)
+```
+
+```{r 6.8 8 d}
+
+## forward selection
+reg.fit.forward <- regsubsets(Y ~ poly(x, 10, raw = TRUE), data = data_, nvmax = 100,
+                              method = "forward")
+
+reg.fit.forward.summary <- summary(reg.fit.forward)
+
+plot.data <- summary.as.data.frame(reg.fit.forward.summary, vars)
+plot.data$n <- as.numeric(rownames(plot.data))
+lapply(plot.data, function(x){which(x == min(x))})
+
+par(mfrow=c(2,2))
+lapply(vars, function(m){
+  plot(formula(stringr::str_interp("${m} ~ n")), plot.data)
+  })
+
+coefficients(reg.fit.forward, id = 3)
+
+
+## backward selection
+reg.fit.backward <- regsubsets(Y ~ poly(x, 10, raw = TRUE), data = data_, nvmax = 100,
+                              method = "backward")
+
+reg.fit.backward.summary <- summary(reg.fit.backward)
+
+plot.data <- summary.as.data.frame(reg.fit.backward.summary, vars)
+plot.data$n <- as.numeric(rownames(plot.data))
+
+lapply(plot.data, function(x){which(x == min(x))})
+
+par(mfrow=c(2,2))
+lapply(vars, function(m){
+  plot(formula(stringr::str_interp("${m} ~ n")), plot.data)
+  })
+
+coefficients(reg.fit.backward, id = 5)
+```
+
+
+### 4. (15 points) Section 6.8, page263, question 9
