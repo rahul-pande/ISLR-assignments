@@ -2,7 +2,6 @@
 title: "DS502- HW3"
 author: "Mahdi Alouane and Rahul Pande"
 output:
-<<<<<<< HEAD
   pdf_document:
     # highlight: zenburn
     latex_engine: xelatex
