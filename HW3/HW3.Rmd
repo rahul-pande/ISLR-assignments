@@ -17,9 +17,15 @@ knitr::opts_chunk$set(echo = TRUE,
 
 ### 1. (10 points) Section 6.8, page 259, question 2
 
-```{r 6.8 2, echo=TRUE}
+(a) iii. holds true. Lasso puts a budget constraint on the parameters which decreases the model variance and it reduces overfitting. However, when we put a constraint, the model bias increases. From the bias-variance trade-off concept we can say that the lasso regression will give better prediction when its increase in bias is less that its decrease in variance.
 
+(b) iii. holds true. Like Lasso above, Ridge also puts a budget constraint on the parameters which decreases the model variance and it reduces overfitting. However, when we put a constraint, the model bias increases. Similarly as above, from the bias-variance trade-off concept we can say that the Ridge regression will give better prediction when its increase in bias is less that its decrease in variance.
+
+(c) ii. holds true. Since non-linear methods are more flexible, they have higher variance than least squares regression but lower bias. Again, from the bias variance trade-off, if the increase on model variance is less than the decrease in bias, then non-linear model will have better prediction accuracy.
+
+```{r 6.8 2, echo=TRUE}
 ```
+
 ### 2. (20 points) Section 6.8, page264, question 11
 ### 3. (10 points) Section 7.9, Page 298, question 3
 ### 4. (10 points) Section 7.9, Page 298, question 4
