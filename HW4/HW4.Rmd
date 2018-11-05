@@ -24,6 +24,27 @@ knitr::opts_chunk$set(echo = TRUE,
 (c) ii. holds true. Since non-linear methods are more flexible, they have higher variance than least squares regression but lower bias. Again, from the bias variance trade-off, if the increase on model variance is less than the decrease in bias, then non-linear model will have better prediction accuracy.
 
 ### 2. (20 points) Section 6.8, page264, question 11
+
+(a)
+```{r 6 11 a, echo=TRUE}
+library(MASS)
+library(leaps)
+library(boot)
+library(glmnet)
+attach(Boston)
+
+colSums(sapply(Boston, is.na))
+# No NAs in the dataset
+
+m.matrix <- model.matrix(crim~., data = Boston)[, -1]
+reg.fit <- regsubsets(m.matrix, Boston$crim, nvmax = dim(Boston)[2]-1)
+
+```
+
+
+
+
+
 ### 3. (10 points) Section 7.9, Page 298, question 3
 
 We have $b_{1}(X)=X , b_{2}(X)=(X-1)^{2} * I(X \ge 1)$
