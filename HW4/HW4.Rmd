@@ -2,8 +2,9 @@
 title: "DS502- HW4"
 author: "Mahdi Alouane and Rahul Pande"
 output:
+  html_document:
+    df_print: paged
   pdf_document:
-    # highlight: zenburn
     latex_engine: xelatex
 ---
 
@@ -199,6 +200,233 @@ y[which(x==0)]
 The y-intercept is 2 (`y[which(x==0)]`). Slope is -1 for $1 \le X \le 2$ and 0 for $-2 \le X < 0$ and $0 < X \le 1$. The function is discontinuos at `x=0`
 
 ### 5. (10 points) Section 7.9, Page 299, question 6
+
+a.
+
+First, we start by performing a 10-fold cross validation as shown below:
+
+``` {r 7.9 6 a i, message=FALSE}
+# Import the required libraries
+library(ISLR)
+library(boot)
+
+# Fix the random seed
+set.seed(4)
+
+# Initialize the error/degree vector
+errors = rep(NA, 10)
+
+# For each degree from 1 to 10
+for (d in 1:10) {
+    # Fit a polynomial model of degree d
+    fit = glm(wage ~ poly(age, d), data = Wage)
+    # Estimate of the test MSE with 10-fold cross validation
+    errors[d] = cv.glm(Wage, fit, K = 10)$delta[1]
+}
+# Plot MSE vs. Degree
+plot(1:10, errors, xlab = "Polynomial degree", ylab = "Test MSE", type = "l")
+
+# Highlight the lowest test MSE value in the plot 
+points(which.min(errors), errors[which.min(errors)], col = "green", cex = 2.5, pch = 20)
+```
+
+We can see that the polynomial model with `d = 4` outperforms the other models on the testing set which corresponds to the optimal model. In the section below, we use ANOVA for testing the null hypothesis that this model is complex enough to explain the data vs. the alternative hypothesis that a more complex model is required.
+
+``` {r 7.9 6 a ii, message=FALSE}
+# We fit different polynomial models going from degree 1 to 10
+fit1 = lm(wage ~ age, data = Wage)
+fit2 = lm(wage ~ poly(age, 2), data = Wage)
+fit3 = lm(wage ~ poly(age, 3), data = Wage)
+fit4 = lm(wage ~ poly(age, 4), data = Wage)
+fit5 = lm(wage ~ poly(age, 5), data = Wage)
+fit6 = lm(wage ~ poly(age, 6), data = Wage)
+fit7 = lm(wage ~ poly(age, 7), data = Wage)
+fit8 = lm(wage ~ poly(age, 8), data = Wage)
+fit9 = lm(wage ~ poly(age, 9), data = Wage)
+fit10 = lm(wage ~ poly(age, 10), data = Wage)
+
+# We use the null hypothesis test ANOVA
+anova(fit1, fit2, fit3, fit4, fit5, fit6, fit7, fit8, fit9, fit10)
+```
+
+We can observe that a polynomial fit with degree 4 provides a statistically significant fit to the data (degree 3 too), however, the other models are not justified since they provide higher p-values. We can say the the ANOVA test proves the results found in the plot above.
+
+In this section, we fit the data with the previous model:
+``` {r 7.9 6 a iii, message=FALSE}
+# Plot the Wage vs. Age data
+plot(wage ~ age, data = Wage)
+
+# Calculate the age grid (lower and upper limits)
+limits = range(Wage$age)
+ageGrid = seq(from = limits[1], to = limits[2])
+
+# Fit the data with the quartic polynomial model
+fit = lm(wage ~ poly(age, 4), data = Wage)
+
+# Calculate the predictions for this model
+predictions = predict(fit, newdata = list(age = ageGrid))
+
+# Display the model on the plot
+lines(ageGrid, predictions, col = "red", lwd = 3)
+```
+
+b.
+
+We repeat the same process for the step function using 10-fold cross validation.
+
+``` {r 7.9 6 b i, message=FALSE}
+errors <- rep(NA, 10)
+for (intervals in 2:10) {
+    Wage$age.cut = cut(Wage$age, intervals)
+    fit = glm(wage ~ age.cut, data = Wage)
+    errors[intervals] = cv.glm(Wage, fit, K = 10)$delta[1]
+}
+plot(2:10, errors[-1], xlab = "Cuts", ylab = "Test MSE", type = "l")
+
+points(which.min(errors), errors[which.min(errors)], col = "green", cex = 2.5, pch = 20)
+```
+
+We can observe that the optimal number of `cuts = 8` since it corresponds to the lowest error on the testing set. In the section below, we plot the data and the 8-cuts step model fit.
+
+```{r 7.9 6 b ii}
+plot(wage ~ age, data = Wage)
+agelims = range(Wage$age)
+age.grid = seq(from = agelims[1], to = agelims[2])
+fit = glm(wage ~ cut(age, 8), data = Wage)
+preds = predict(fit, data.frame(age = age.grid))
+lines(age.grid, preds, col = "red", lwd = 3)
+```
+
 ### 6. (20 points) Section 7.9, Page 299, question 7
+
+Let's first begin by exploring the relationship between `wage` from a side and `maritl` and `jobclass` from the other side.
+
+```{r 7.9 7 i}
+# Fix the random seed
+set.seed(1)
+
+ # Display the summary of the features maritl and jobclass (index of values)
+summary(Wage[, c("maritl", "jobclass")] )
+
+# Display the wage vs. maril and wage vs. jobclass side by side
+par(mfrow = c(1, 2))
+plot(Wage$maritl, Wage$wage)
+plot(Wage$jobclass, Wage$wage)
+```
+
+From the plots above, we can see that a `married` marital status corresponds to higher wages (followed by widowed) and job class corresponding to `informational` presents higher wages too on an average.
+
+In this section, let's experiment different models using natural spline functions of the variables `martil`, `jobclass`, `year`, `education` and `age`.
+
+```{r 7.9 7 ii}
+library(gam)
+fit0 = gam(wage ~ lo(age,span=200,degree=1), data = Wage)
+fit1 = gam(wage ~ lo(age,span=200,degree=1) + year, data = Wage)
+fit2 = gam(wage ~ s(year,4)+lo(age,span=200,degree=1), data = Wage)
+fit4 = gam(wage ~ s(year,4)+lo(age,span=200,degree=1) + education, data = Wage)
+fit5 = gam(wage ~ s(year,4)+lo(age,span=200,degree=1) + education + jobclass, data = Wage)
+fit6 = gam(wage ~ s(year,4)+lo(age,span=200,degree=1) + education + maritl, data = Wage)
+fit7 = gam(wage ~ s(year,4)+lo(age,span=200,degree=1) + education + jobclass + maritl, data = Wage)
+anova(fit0, fit1, fit2, fit4, fit5, fit6, fit7)
+```
+
+We can conclude that models 4 and 6 are statistically significant with respectively p-values equal to `< 2.2e-16` and `< 2.2e-16`. Hence, we can say that the model gets a statistically significant improvement by including the `year spline`, `age local regression`, `education` and `maritl`. However, the model is less significant for the cases where we introduced `jobclass`.
+
+In this section, we are going to plot our 7th model as shown below:
+
+```{r 7.9 7 iii}
+attach(Wage)
+
+# Calculate the prediction with our model
+myPreds = predict(fit6,se=TRUE)
+
+# Plot the data
+plot(age,wage, col='red')
+
+# Plot the predictions
+points(age,myPreds$fit,col='green',pch=20)
+
+# Fancy GAM plot
+par(mfrow = c(2, 2), pty = "s")
+plot(fit6,se=TRUE)
+
+```
+
+We can observe our data is not fitted with a linear model (plane) but instead is fitted with multiple lines each corresponding to a value of the categorical variables `education` and `mirtl`. We can see that our model is better fitted by combining multiple models such as `spline`, `local regression` and `linear regression` with `continous` and `categorical` variables.
+
+
 ### 7. (10 points) Section 8.4, Page 332, question 1
 ### 8. (10 points) Section 8.4, Page 333-334, question 8
+
+a.
+
+```{r 8.4 8 a}
+
+library(ISLR)
+set.seed(1)
+
+# Splitting the data according to a 50/50 ratio
+
+split = sample(1:nrow(Carseats), nrow(Carseats) / 2)
+Carseats.train = Carseats[split, ]
+Carseats.test = Carseats[-split, ]
+
+```
+
+b.
+
+```{r 8.4 8 b}
+# Import the library
+library(tree)
+
+tree.carseats =  tree(Sales ~ ., data = Carseats.train)
+summary(tree.carseats)
+plot(tree.carseats)
+text(tree.carseats, pretty = 0)
+
+```
+
+We can see that the most important variable in the tree is `ShelveLoc` and then `Price` which means that knowing the shelve location would be the information that helps us the most to predict the `sales` of the carseats. 
+
+```{r 8.4 8 b ii}
+
+pred <- predict(tree.carseats, newdata = Carseats.test)
+mean((pred - Carseats.test$Sales)^2)
+
+```
+
+In this case, we obtain `4.148897` as test MSE.
+
+c.
+
+```{r 8.4 8 c}
+cv.carseats <- cv.tree(tree.carseats)
+plot(cv.carseats$size, cv.carseats$dev, type = "b")
+tree.min <- which.min(cv.carseats$dev)
+points(tree.min, cv.carseats$dev[tree.min], col = "red", cex = 2, pch = 20)
+prune.carseats <- prune.tree(tree.carseats, best = 8)
+plot(prune.carseats)
+text(prune.carseats, pretty = 0)
+yhat <- predict(prune.carseats, newdata = Carseats.test)
+mean((yhat - Carseats.test$Sales)^2)
+
+```
+
+d.
+
+```{r 8.4 8 d}
+library(randomForest)
+
+bag.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 10, ntree = 500, importance = TRUE)
+yhat.bag <- predict(bag.carseats, newdata = Carseats.test)
+mean((yhat.bag - Carseats.test$Sales)^2)
+importance(bag.carseats)
+```
+
+e.
+```{r 8.4 8 e}
+rf.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 3, ntree = 500, importance = TRUE)
+yhat.rf <- predict(rf.carseats, newdata = Carseats.test)
+mean((yhat.rf - Carseats.test$Sales)^2)
+importance(rf.carseats)
+```
