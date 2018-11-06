@@ -395,38 +395,83 @@ mean((pred - Carseats.test$Sales)^2)
 
 ```
 
-In this case, we obtain `4.148897` as test MSE.
+In this case, we obtain about `4.15` as test MSE.
 
 c.
 
-```{r 8.4 8 c}
+In this section, we use cross-validation to know which size is optimal for the tree complexity.
+
+```{r 8.4 8 c i}
 cv.carseats <- cv.tree(tree.carseats)
 plot(cv.carseats$size, cv.carseats$dev, type = "b")
 tree.min <- which.min(cv.carseats$dev)
 points(tree.min, cv.carseats$dev[tree.min], col = "red", cex = 2, pch = 20)
-prune.carseats <- prune.tree(tree.carseats, best = 8)
-plot(prune.carseats)
-text(prune.carseats, pretty = 0)
-yhat <- predict(prune.carseats, newdata = Carseats.test)
-mean((yhat - Carseats.test$Sales)^2)
 
 ```
+
+We can observe that a size of `8` corresponds to the minimal deviance. Hence, we draw the tree with `size = 8` and we compute the test MSE for this tree.
+
+```{r 8.4 8 c ii}
+
+prune.carseats = prune.tree(tree.carseats, best = 8)
+plot(prune.carseats)
+text(prune.carseats, pretty = 0)
+pred = predict(prune.carseats, newdata = Carseats.test)
+mean((pred - Carseats.test$Sales)^2)
+```
+
+We can see that pruning the tree is not helpful in this case since the test MSE increased after pruning from `4.15` to about `5.09`. However, the tree seems way more human readable than the first one and presents the most important variables in the same order.
 
 d.
 
-```{r 8.4 8 d}
+```{r 8.4 8 d i}
 library(randomForest)
 
 bag.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 10, ntree = 500, importance = TRUE)
-yhat.bag <- predict(bag.carseats, newdata = Carseats.test)
-mean((yhat.bag - Carseats.test$Sales)^2)
-importance(bag.carseats)
+pred.bag <- predict(bag.carseats, newdata = Carseats.test)
+mean((pred.bag - Carseats.test$Sales)^2)
 ```
 
-e.
-```{r 8.4 8 e}
-rf.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 3, ntree = 500, importance = TRUE)
-yhat.rf <- predict(rf.carseats, newdata = Carseats.test)
-mean((yhat.rf - Carseats.test$Sales)^2)
-importance(rf.carseats)
+As we can see, using bagging decreased the test MSE to about `2.63` which means it outperforms the previous two models.
+
+```{r 8.4 8 d ii}
+
+importance(bag.carseats)
+
 ```
+
+We can observe also that the most important variables are `ShelveLoc`, `Price` and `Age` which were also the most important variables for our previous models.
+
+e.
+
+```{r 8.4 8 e i}
+mse.vec <- NA
+for (a in 1:10){
+  rf.carseats <-  randomForest(Sales ~ . , data=Carseats.train, 
+                             mtry=a, ntree=500, importance=TRUE)
+  rf.pred <-  predict(rf.carseats, Carseats.test)
+  mse.vec[a] <- mean((Carseats.test$Sales - rf.pred)^2)
+}
+
+# Number of variables used in the best model
+which.min(mse.vec)
+
+# Test MSE corresponding to the best model
+mse.vec[which.min(mse.vec)]
+
+```
+
+After applying random forest, we observe that the best model having to the lowest test MSE `2.56` corresponds to a tree using 10 predictors.
+
+```{r 8.4 8 e ii}
+
+# Most important variables corresponding to the best model
+rf.carseats <-  randomForest(Sales ~ . , data = Carseats, 
+                             mtry=9, ntree=500, importance=TRUE)
+importance(rf.carseats)
+
+```
+
+Our best model shows also that the most important predictors in order are `ShelveLoc`, `Price`, `CompPrice`, `Advertising` and `Age`.
+
+From the experiments above, we can conclude that the number of predictors `m` helps reduce the test MSE and hence, helps predicting our data with higher accuracy which explains why pruning the same tree in `b` generated a higher test MSE. However, there is a trade-off between the model's `accuracy` and `complexity` which makes the model more accurate but less readable and more complex.
