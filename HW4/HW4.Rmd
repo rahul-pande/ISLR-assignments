@@ -26,24 +26,127 @@ knitr::opts_chunk$set(echo = TRUE,
 ### 2. (20 points) Section 6.8, page264, question 11
 
 (a)
-```{r 6 11 a, echo=TRUE}
+```{r 6 11 a i, echo=TRUE}
 library(MASS)
 library(leaps)
-library(boot)
 library(glmnet)
 attach(Boston)
 
 colSums(sapply(Boston, is.na))
 # No NAs in the dataset
 
-m.matrix <- model.matrix(crim~., data = Boston)[, -1]
-reg.fit <- regsubsets(m.matrix, Boston$crim, nvmax = dim(Boston)[2]-1)
+# k-fold cross validation
+k = 10
+
+n = dim(Boston)[1]
+p = dim(Boston)[2]-1
+
+set.seed(123)
+folds = sample(rep(1:k, length = nrow(Boston)), replace = T)
+
+form.subset = as.formula("crim ~ .")
+
+cv.errors = matrix(NA, k, p)
+
+for (i in 1:k) {
+  subset.fit <- regsubsets(form.subset, Boston[folds!=i, ], nvmax = p)
+  for (n.subset in 1:p) {
+    m.mat <- model.matrix(form.subset, Boston[folds==i, ])
+    best.coef <- coef(subset.fit, id=n.subset)
+    pred <- m.mat[, names(best.coef)] %*% best.coef
+    # mean squared error
+    error = mean((Boston[folds==i, ]$crim - pred)^2)
+    cv.errors[i,n.subset] = error
+  }
+  
+}
+# root mean squared values
+rmse.cv = sqrt(apply(cv.errors, 2, mean))
+plot(rmse.cv, type = "b")
+
+which(rmse.cv == min(rmse.cv))
+rmse.cv[which(rmse.cv == min(rmse.cv))]
+```
+
+```{r 6 11 a ii, echo=TRUE}
+# Lasso regression
+
+X = model.matrix(crim ~ ., data = Boston)[, -1]
+y = Boston$crim
+cv.lasso = cv.glmnet(X, y, type.measure = "mse", nfolds = 10)
+plot(cv.lasso)
+
+coef(cv.lasso)[,1]
+
+# One standard error lamda to avoid overfitting
+chosen.lambda = cv.lasso$lambda.1se
+
+# root mean square error for the chosen lamdba
+sqrt(cv.lasso$cvm[cv.lasso$lambda == chosen.lambda])
 
 ```
 
 
+```{r 6 11 a iii, echo=TRUE}
+
+cv.ridge = cv.glmnet(X, y, type.measure = "mse", alpha = 0, nfolds = 10)
+plot(cv.ridge)
+
+coef(cv.ridge)
+
+# One standard error lamda to avoid overfitting
+chosen.lambda = cv.ridge$lambda.1se
+
+# root mean square error for the chosen lamdba
+sqrt(cv.ridge$cvm[cv.ridge$lambda == chosen.lambda])
+
+```
+
+```{r 6 11 a iv, echo=TRUE}
+library(pls)
+
+pcr.fit = pcr(crim ~ ., data = Boston, scale = TRUE, validation = "CV", segments= 10)
+summary(pcr.fit)
+
+# variance explanation
+plot(pcr.fit$Xvar/sum(pcr.fit$Xvar))
+
+# validation plot
+validationplot(pcr.fit,val.type='MSEP')
+
+ncomp = 4
+
+set.seed(123)
+folds = sample(rep(1:k, length = nrow(Boston)), replace = T)
+
+cv.errors = rep(0, k)
+
+for (i in 1:k) {
+  pcr.fit <- pcr(crim ~ ., data = Boston[folds !=i, ], scale = TRUE)
+  pred = predict( pcr.fit, Boston[folds==i, ], ncomp=ncomp)
+  error = mean((Boston[folds==i, ]$crim - pred)^2)
+  cv.errors[i] = error
+}
+sqrt(mean(cv.errors))
+
+```
 
 
+(b)
+```{r 6 11 b, echo=TRUE}
+results <- rbind(
+  c("Best Subset", 6.633116, 9),
+  c("Lasso Regression", 7.549995, 1),
+  c("Ridge Regression", 7.359946, 13),
+  c("PCR", 6.875975, 4)
+)
+colnames(results) <- c("Method", "MSE", "# predictors")
+knitr::kable(results)
+```
+
+From the above table, we chose PCR model with 4 predictors as it has the mse very close to the lowest mse and is simpler model than the best subset model, since it has 4 predictors against the 9 predictors and thus has lower chances of overfitting the data. Second choice would be Best Subset model with 9 predictors as it has the lowest cross validation mse and has less number of predictors than Ridge Regression. Lasso Regression here seems to be underfit in this case.
+
+(c) No. PCR has only 4 predictors since from the graph, after 4 predictors, adding another predictor does not increase the explained variance a lot. Hence we have taken only 4 predictors. We can also have criterion like taking n components which explain at least x% of the variance.
 
 ### 3. (10 points) Section 7.9, Page 298, question 3
 
