@@ -172,6 +172,9 @@ pred.class <- function(x1,x2){
 
 points = data.frame(x1 = c(0, -1, 2, 3), x2 = c(0, 1, 2, 8))
 pcolor = apply(points, 1, FUN = function(m){pred.class(m[1], m[2])})
+
+plot(points, col = pcolor,
+     type = "p", asp = 1, xlab = "X1", ylab = "X2")
 symbols(c(-1), c(2), circles = c(radius), add = TRUE, inches = FALSE)
 
 ```
