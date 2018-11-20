@@ -1,0 +1,275 @@
+---
+title: "DS502- HW5"
+author: "Mahdi Alouane and Rahul Pande"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      tidy=TRUE,
+                      fig.align='center',
+                      tidy.opts=list(width.cutoff=60))
+# https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
+```
+
+### 1.(10 points) Section 8.4, Page 332, question 3
+
+```{r 8.4 3, echo=TRUE}
+library(RColorBrewer)
+
+p = seq(0, 1, 0.01)
+gini.index = p * (1 - p) * 2
+entropy = -(p * log(p) + (1 - p) * log(1 - p))
+binary.err = 1 - pmax(p, 1 - p)
+matplot(p, cbind(gini.index, entropy, binary.err),
+        xlab = "p", ylab = "value", lwd = 2,
+        col = brewer.pal(name = "Set1", n = 3), type = "l", lty = 1)
+legend("topleft", c("Gini Index", "Cross Entropy", "Binary Classification error"),
+       col = brewer.pal(name = "Set1", n = 3), lty = 1, cex = 0.5)
+```
+
+
+### 2.(15 points) Section 8.4, Page 334, question 9
+
+
+a)
+```{r 8.4 9 a, echo=TRUE}
+library(ISLR)
+attach(OJ)
+set.seed(123)
+n = nrow(OJ)
+train.data = sample(1:n, 800)
+X.test = OJ[-train.data, ]
+y.test = OJ$Purchase[-train.data]
+```
+
+b)
+```{r 8.4 9 b, echo=TRUE}
+library(tree)
+tree.fit = tree(Purchase~., data = OJ, subset = train.data)
+summary(tree.fit)
+```
+
+From the summary, we see that the training error is 16.12%. Also, we see that there are 10 terminal nodes in the tree, and the variables used in forming the tree are "LoyalCH", "PriceDiff", "SpecialCH", "PctDiscMM".
+
+
+c)
+```{r 8.4 9 c, echo=TRUE}
+tree.fit
+levels(OJ$Purchase)
+```
+Let's take `24) PriceDiff < -0.165 40   47.050 MM ( 0.27500 0.72500 ) *` terminal node. This denotes that for this node  `PriceDiff` is the splitting variable and if `PriceDiff` < -0.165 then the class is MM. Also the number 40 denotes the number of samples in this region (i.e. `PriceDiff` < -0.165). The numbers in the round braces denote the probabilities of the sample being in a class. The order of probabilities is the same as the order of the levels of the response variable. Since - `Levels: CH MM` therefore the probability that sample belongs to `MM` `Purchase` is 0.72500
+
+
+d)
+```{r 8.4 9 d, echo=TRUE}
+plot(tree.fit)
+text(tree.fit, pretty = 0)
+```
+
++ From the plot we can see that the depth of the tree is four levels
++ The root node splitting variable is `LoyalCH`, i.e. `LoyalCH` is the most important splitting variable.
++ Also, `LoyalCH` is present in first three levels of tree. The first two levels are entirely composed of `LoyalCH` which clearly establishes that is a very important variable.
++ There are 10 terminal nodes where, four of which predict `MM` `Purchase` while other six predict `CH` `Purchase`
+
+
+e)
+```{r 8.4 9 e, echo=TRUE}
+y.pred = predict(tree.fit, X.test, type = "class")
+conf.mat <- table(y.test, y.pred)
+
+conf.mat
+
+error.rate <- 1 - (conf.mat[1] + conf.mat[4]) / sum(conf.mat)
+error.rate
+```
+
+The error rate is 17.78%
+
+f)
+```{r 8.4 9 f, echo=TRUE}
+set.seed(123)
+cv.fit = cv.tree(tree.fit, FUN = prune.misclass)
+cv.fit
+```
+
+g)
+```{r 8.4 9 g, echo=TRUE}
+plot(cv.fit$size, cv.fit$dev, type = "b", xlab = "Tree Size", ylab = "Classification Errors")
+```
+
+h)
+```{r 8.4 9 h, echo=TRUE}
+```
+We see that tree size of 5 corresponds to the lowest cv classification errors.
+
+
+```{r 8.4 9 i, echo=TRUE}
+pruned.fit = prune.tree(tree.fit, best = 5)
+```
+
+```{r 8.4 9 j, echo=TRUE}
+summary(tree.fit)
+summary(pruned.fit)
+```
+
+We see that the pruned tree has a higher training classification error (19.12%) than the unpruned tree (16.12%), however has better cross validation error.
+
+```{r 8.4 9 k, echo=TRUE}
+y.pred.pruned = predict(pruned.fit, X.test, type = "class")
+conf.mat.pruned <- table(y.test, y.pred.pruned)
+
+conf.mat.pruned
+
+error.rate.pruned <- 1 - (conf.mat.pruned[1] + conf.mat.pruned[4]) / sum(conf.mat.pruned)
+error.rate.pruned
+```
+
+The test error of pruned tree (18.89%) is slighly higher than the unpruned tree (17.78%), however the pruned tree has much lower variance given it has only 5 nodes (half the unpruned tree) as hence has more generalization and more hope of performing better on unseen data.
+
+
+### 3.(10 points) Section 9.7, Page 368, question 2
+
+a)
+
+$(1 +X_1)^2 + (2-X_2)^2 = 4$ is a circle with radius $\sqrt4$ and center $(-1, 2)$
+
+```{r 9.7 2 a, echo=TRUE}
+radius = 2
+plot(NA, NA, type = "n", xlim = c(-4, 2), ylim = c(-1, 5), asp = 1, xlab = "X1", 
+    ylab = "X2")
+symbols(c(-1), c(2), circles = c(radius), add = TRUE, inches = FALSE)
+```
+
+b)
+
+$>4$ is area outside circle
+
+```{r 9.7 2 b, echo=TRUE}
+radius = 2
+plot(NA, NA, type = "n", xlim = c(-4, 2), ylim = c(-1, 5), asp = 1, xlab = "X1", 
+    ylab = "X2")
+symbols(c(-1), c(2), circles = c(radius), add = TRUE, inches = FALSE)
+text(c(-1), c(2), "< 4")
+text(c(-4), c(2), "> 4")
+```
+
+c)
+```{r 9.7 2 c, echo=TRUE}
+pred.class <- function(x1,x2){
+  if( (1 + x1) ^ 2 + (2-x2)^2 > 4){
+    return("blue")
+  }
+  else{
+    return("red")
+  }
+}
+
+points = data.frame(x1 = c(0, -1, 2, 3), x2 = c(0, 1, 2, 8))
+pcolor = apply(points, 1, FUN = function(m){pred.class(m[1], m[2])})
+symbols(c(-1), c(2), circles = c(radius), add = TRUE, inches = FALSE)
+
+```
+
+The observations are classified as shown in the above graph
+
+
+d)
+The decision boundary in c) is:
+
+$(1 +X_1)^2 + (2-X_2)^2 > 4$
+
+Expanding and simplifying, we have:
+
+$X_1^2 + X_2^2 + 2X_1 - 4X_2 +5 > 4$
+
+We see that this equation is linear in $X_1, X_1^2, X_2$, and $X_2^2$, i.e linear in the betas not in $X$.
+
+
+### 4.(20 points) Section 9.7, Page 369, question 4 (Open ended question)
+
+```{r 9.7 4 setup, echo=TRUE}
+set.seed(123)
+X = matrix(rnorm(100*2, sd = 0.5), ncol = 2)
+X[1:50, 1] <- X[1:50, 1] + 2
+X[51:75, 2] <- X[51:75, 2] + 2
+X[1:25, 2] <- X[1:25, 2] + 2
+y = c(rep(-1, 25), rep(1, 50), rep(-1, 25))
+
+plot(X, col = y + 2, xlab = "X1", ylab = "X2")
+```
+
+
+```{r 9.7 4 linear, echo=TRUE}
+set.seed(123)
+train = sample(1:100, 60)
+data = data.frame(X = X, y = as.factor(y))
+
+library(e1071)
+linear.svm.fit = svm(y~., data = data[train, ], kernel = "linear")
+plot(linear.svm.fit, data = data[train, ])
+
+linear.yhat = predict(linear.svm.fit)
+linear.pred = predict(linear.svm.fit, newdata = data[-train, ])
+
+# training error
+mean(data[train, "y"] != linear.yhat)
+# testing error
+mean(data[-train, "y"] != linear.pred)
+```
+
+SVC is Support Vector Classifier, i.e. Linear SVM. We see that the data is not separated by SVC boundary since data is not linearly separable in the given two dimensions. We see high train and test error of 43% and 60% respectively. So this model is worse than coin flip in case of test.
+
+```{r 9.7 4 poly, echo=TRUE}
+poly.svm.fit = svm(y~., data = data[train, ], kernel = "polynomial", degree= 2)
+plot(poly.svm.fit, data = data[train, ])
+
+poly.yhat = predict(poly.svm.fit)
+poly.pred = predict(poly.svm.fit, newdata = data[-train, ])
+
+# training error
+mean(data[train, "y"] != poly.yhat)
+# testing error
+mean(data[-train, "y"] != poly.pred)
+```
+
+Polynomial SVM performs very good on this data with 3.33% train and 2.5% test error respectively. We can see that the polynomial decision boundary separates the data very well.
+
+```{r 9.7 4 rbf-tune, echo=TRUE}
+best.fit <- tune(svm, y~., data = data[train, ], kernel = "radial",
+                ranges = list(
+                  cost = c(0.1,1,10,100,1000),
+                  gamma = c(0.5,1,2,3,4)
+                  )
+                )
+summary(best.fit)
+```
+
+
+```{r 9.7 4 rbf, echo=TRUE}
+rbf.svm.fit = svm(y~., data = data[train, ], kernel = "radial",
+                  gamma = best.fit$best.parameters$gamma, cost = best.fit$best.parameters$cost)
+plot(rbf.svm.fit, data = data)
+
+rbf.yhat = predict(rbf.svm.fit)
+rbf.pred = predict(rbf.svm.fit, newdata = data[-train, ])
+
+# training error
+mean(data[train, "y"] != rbf.yhat)
+# testing error
+mean(data[-train, "y"] != rbf.pred)
+```
+
+We see that RBF SVM also performs very good on this data. The boundary separates the data well. Training error is higher as compared to Polynomial SVM however test error is the same.
+
+For the current data both Polynomial SVM and RBF SVM
+
+
+
+### 5.(15 points) Section 9.7, Page 369-370, question 5 (A bit harder than normal)
+### 6.(10) Section 10.7, Page 414-415, question 4
+### 7.(20) Section 10.7, Page 417, question 10
