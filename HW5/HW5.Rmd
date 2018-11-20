@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE,
 # https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
 ```
 
+<<<<<<< HEAD
 ### 1.(10 points) Section 8.4, Page 332, question 3
 
 ```{r 8.4 3, echo=TRUE}
@@ -266,10 +267,143 @@ mean(data[-train, "y"] != rbf.pred)
 
 We see that RBF SVM also performs very good on this data. The boundary separates the data well. Training error is higher as compared to Polynomial SVM however test error is the same.
 
-For the current data both Polynomial SVM and RBF SVM
+For the current data both Polynomial SVM (degree 2) and RBF SVM perform equally better
 
+### 5. (15 points) Section 9.7, Page 369-370, question 5
 
+a.
 
-### 5.(15 points) Section 9.7, Page 369-370, question 5 (A bit harder than normal)
-### 6.(10) Section 10.7, Page 414-415, question 4
-### 7.(20) Section 10.7, Page 417, question 10
+```{r 9.7 5 a}
+set.seed(10)
+x1 = runif(500) - 0.5
+x2 = runif(500) - 0.5
+y = 1 * (x1^2 - x2^2 > 0)
+```
+
+b.
+
+```{r 9.7 5 b}
+plot(x1, x2, xlab = "X1", ylab = "X2", col = (3 - y), pch = (2 - y))
+```
+
+c.
+```{r 9.7 5 c}
+logit.fit <- glm(y ~ x1 + x2, family = "binomial")
+summary(logit.fit)
+```
+
+d.
+
+```{r 9.7 5 d}
+data <- data.frame(x1 = x1, x2 = x2, y = y)
+probs <- predict(logit.fit, data, type = "response")
+preds <- rep(0, 500)
+preds[probs > 0.47] <- 1
+plot(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3 - 1), pch = (2 - 1), xlab = "X1", ylab = "X2")
+points(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3 - 0), pch = (2 - 0))
+```
+
+e.
+
+```{r 9.7 5 e}
+logitnl.fit <- glm(y ~ poly(x1, 2) + poly(x2, 2) + I(x1 * x2), family = "binomial")
+summary(logitnl.fit)
+```
+
+f.
+```{r 9.7 5 f}
+probs <- predict(logitnl.fit, data, type = "response")
+preds <- rep(0, 500)
+preds[probs > 0.47] <- 1
+plot(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3 - 1), pch = (2 - 1), xlab = "X1", ylab = "X2")
+points(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3 - 0), pch = (2 - 0))
+```
+
+g.
+```{r 9.7 5 g}
+library(e1071)
+data$y <- as.factor(data$y)
+svm.fit <- svm(y ~ x1 + x2, data, kernel = "linear", cost = 0.01)
+preds <- predict(svm.fit, data)
+plot(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3 - 0), pch = (2 - 0), xlab = "X1", ylab = "X2")
+points(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3 - 1), pch = (2 - 1))
+```
+
+h.
+```{r 9.7 5 h}
+data$y <- as.factor(data$y)
+svmnl.fit <- svm(y ~ x1 + x2, data, kernel = "radial", gamma = 1)
+preds <- predict(svmnl.fit, data)
+plot(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3 - 0), pch = (2 - 0), xlab = "X1", ylab = "X2")
+points(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3 - 1), pch = (2 - 1))
+```
+
+### 6. (10 points) Section 10.7, Page 414-415, question 4
+
+a.
+
+There is not enough information to tell. 
+For example, let's assume that d(1,4)=4, d(1,5)=1, d(2,4)=2, d(2,5)=3, d(3,4)=4 and d(3,5)=7, the single linkage dissimilarity between {1,2,3} and {4,5} would be equal to 1 and the complete linkage dissimilarity between {1,2,3} and {4,5} would be equal to 7.
+That said, with single linkage, they would fuse at a height of 1, and with complete linkage, they would fuse at a height of 7. 
+But, if all inter-observations distance are equal to 3, we would have that the single and complete linkage dissimilarities between {1,2,3} and {4,5} are equal to 3.
+
+b.
+
+They would fuse at the same height. 
+Assuming that d(5,6)=d, the single and complete linkage dissimilarities between {5} and {6} would be equal to d. Hence, they would fuse at the same height (equal to d) for single and complete linkage.
+
+### 7. (20 points) Section 10.7, Page 417, question 10
+
+a.
+
+```{r 9.7 7 a}
+set.seed(2)
+x <- matrix(rnorm(20 * 3 * 50, mean = 0, sd = 0.001), ncol = 50)
+x[1:20, 2] <- 1
+x[21:40, 1] <- 2
+x[21:40, 2] <- 2
+x[41:60, 1] <- 1
+true.labels <- c(rep(1, 20), rep(2, 20), rep(3, 20))
+```
+
+b.
+
+```{r 9.7 7 b}
+pr.out <- prcomp(x)
+plot(pr.out$x[, 1:2], col = 1:3, xlab = "Z1", ylab = "Z2", pch = 19)
+```
+
+c.
+
+```{r 9.7 7 c}
+pr.out <- prcomp(x)
+plot(pr.out$x[, 1:2], col = 1:3, xlab = "Z1", ylab = "Z2", pch = 19)
+```
+
+d.
+
+```{r 9.7 7 d}
+km.out <- kmeans(x, 2, nstart = 20)
+table(true.labels, km.out$cluster)
+```
+
+e.
+
+```{r 9.7 7 e}
+km.out <- kmeans(x, 4, nstart = 20)
+table(true.labels, km.out$cluster)
+```
+
+f.
+
+```{r 9.7 7 f}
+km.out <- kmeans(pr.out$x[, 1:2], 3, nstart = 20)
+table(true.labels, km.out$cluster)
+```
+
+g.
+
+```{r 9.7 7 g}
+km.out <- kmeans(scale(x), 3, nstart = 20)
+table(true.labels, km.out$cluster)
+```
