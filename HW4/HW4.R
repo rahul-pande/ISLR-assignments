@@ -1,33 +1,11 @@
----
-title: "DS502- HW4"
-author: "Mahdi Alouane and Rahul Pande"
-output:
-  pdf_document:
-    latex_engine: xelatex
-  html_document:
-    df_print: paged
----
-
-```{r setup, include=FALSE}
+## ----setup, include=FALSE------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE,
                       tidy=TRUE,
                       fig.align='center',
                       tidy.opts=list(width.cutoff=60))
 # https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
-```
 
-### 1. (10 points) Section 6.8, page 259, question 2
-
-(a) iii. holds true. Lasso puts a budget constraint on the parameters which decreases the model variance and it reduces overfitting. However, when we put a constraint, the model bias increases. From the bias-variance trade-off concept we can say that the lasso regression will give better prediction when its increase in bias is less that its decrease in variance.
-
-(b) iii. holds true. Like Lasso above, Ridge also puts a budget constraint on the parameters which decreases the model variance and it reduces overfitting. However, when we put a constraint, the model bias increases. Similarly as above, from the bias-variance trade-off concept we can say that the Ridge regression will give better prediction when its increase in bias is less that its decrease in variance.
-
-(c) ii. holds true. Since non-linear methods are more flexible, they have higher variance than least squares regression but lower bias. Again, from the bias variance trade-off, if the increase on model variance is less than the decrease in bias, then non-linear model will have better prediction accuracy.
-
-### 2. (20 points) Section 6.8, page264, question 11
-
-(a)
-```{r 6 11 a i, echo=TRUE}
+## ----6 11 a i, echo=TRUE-------------------------------------------------
 library(MASS)
 library(leaps)
 library(glmnet)
@@ -67,9 +45,8 @@ plot(rmse.cv, type = "b")
 
 which(rmse.cv == min(rmse.cv))
 rmse.cv[which(rmse.cv == min(rmse.cv))]
-```
 
-```{r 6 11 a ii, echo=TRUE}
+## ----6 11 a ii, echo=TRUE------------------------------------------------
 # Lasso regression
 
 X = model.matrix(crim ~ ., data = Boston)[, -1]
@@ -85,10 +62,8 @@ chosen.lambda = cv.lasso$lambda.1se
 # root mean square error for the chosen lamdba
 sqrt(cv.lasso$cvm[cv.lasso$lambda == chosen.lambda])
 
-```
 
-
-```{r 6 11 a iii, echo=TRUE}
+## ----6 11 a iii, echo=TRUE-----------------------------------------------
 
 cv.ridge = cv.glmnet(X, y, type.measure = "mse", alpha = 0, nfolds = 10)
 plot(cv.ridge)
@@ -101,9 +76,8 @@ chosen.lambda = cv.ridge$lambda.1se
 # root mean square error for the chosen lamdba
 sqrt(cv.ridge$cvm[cv.ridge$lambda == chosen.lambda])
 
-```
 
-```{r 6 11 a iv, echo=TRUE}
+## ----6 11 a iv, echo=TRUE------------------------------------------------
 library(pls)
 
 pcr.fit = pcr(crim ~ ., data = Boston, scale = TRUE, validation = "CV", segments= 10)
@@ -130,11 +104,8 @@ for (i in 1:k) {
 }
 sqrt(mean(cv.errors))
 
-```
 
-
-(b)
-```{r 6 11 b, echo=TRUE}
+## ----6 11 b, echo=TRUE---------------------------------------------------
 results <- rbind(
   c("Best Subset", 6.633116, 9),
   c("Lasso Regression", 7.549995, 1),
@@ -143,29 +114,8 @@ results <- rbind(
 )
 colnames(results) <- c("Method", "MSE", "# predictors")
 knitr::kable(results)
-```
 
-From the above table, we chose PCR model with 4 predictors as it has the mse very close to the lowest mse and is simpler model than the best subset model, since it has 4 predictors against the 9 predictors and thus has lower chances of overfitting the data. Second choice would be Best Subset model with 9 predictors as it has the lowest cross validation mse and has less number of predictors than Ridge Regression. Lasso Regression here seems to be underfit in this case.
-
-(c) No. PCR has only 4 predictors since from the graph, after 4 predictors, adding another predictor does not increase the explained variance a lot. Hence we have taken only 4 predictors. We can also have criterion like taking n components which explain at least x% of the variance.
-
-### 3. (10 points) Section 7.9, Page 298, question 3
-
-We have $b_{1}(X)=X , b_{2}(X)=(X-1)^{2} * I(X \ge 1)$
-
-For $X \ge 1, I(X \ge 1) = 1$, and $X < 1, I(X \ge 1) = 0$
-
-Substituting $\hat\beta_0 = 1, \hat\beta_1 = 1, \hat\beta_2 = −2$ in
-
-$Y =\beta_0 +\beta_1 b_1(X)+ \beta_2b_2(X) + \epsilon$
-
-We get,
-
-$\hat Y =1 + b_1(X) -2 b_2(X)$
-
-For $X \ge 1, \hat Y =1 + X - 2(X - 1)^{2} = -1 + 5X - 2X^2$, and for $X < 1, \hat Y = 1 + X$
-
-```{r 6.8 2, echo=TRUE}
+## ----6.8 2, echo=TRUE----------------------------------------------------
 x_lower = seq(-2, 1, by = 0.05)
 x_upper = seq(1, 2, by = 0.05)
 
@@ -176,18 +126,8 @@ x <- c(x_lower, x_upper)
 y <- c(y_lower, y_upper)
 
 plot(x,y)
-```
 
-$Y = 1 + X, for X<1$
-$Now, for X=0, Y = 1$
-
-Therefore y-intercept is 1. Slope is 1 when $X<1$ and by taking derivative for $Y$ where $X\ge1$, we get slope as $5 - 4 X$
-
-### 4. (10 points) Section 7.9, Page 298, question 4
-
-Similary from above,
-we can split the function into multiple domains. Since there are a lot of cuts in this, we use the `I` function in R to enforce the conditions on x. It is as below.
-```{r 7 4, echo=TRUE}
+## ----7 4, echo=TRUE------------------------------------------------------
 x = seq(-2, 2, 0.05)
 y = 1 + 1 * I(x <= 2 & x >= 0) - (x-1) * I(x <= 2 & x >= 1)  + 3 * (x-3) * I (x <= 4 & x >= 3) + I(x <= 5 & x>4)
 
@@ -195,17 +135,8 @@ plot(x, y)
 
 # y-intercept
 y[which(x==0)]
-```
 
-The y-intercept is 2 (`y[which(x==0)]`). Slope is -1 for $1 \le X \le 2$ and 0 for $-2 \le X < 0$ and $0 < X \le 1$. The function is discontinuos at `x=0`
-
-### 5. (10 points) Section 7.9, Page 299, question 6
-
-a.
-
-First, we start by performing a 10-fold cross validation as shown below:
-
-``` {r 7.9 6 a i, message=FALSE}
+## ----7.9 6 a i, message=FALSE--------------------------------------------
 # Import the required libraries
 library(ISLR)
 library(boot)
@@ -228,11 +159,8 @@ plot(1:10, errors, xlab = "Polynomial degree", ylab = "Test MSE", type = "l")
 
 # Highlight the lowest test MSE value in the plot 
 points(which.min(errors), errors[which.min(errors)], col = "green", cex = 2.5, pch = 20)
-```
 
-We can see that the polynomial model with `d = 4` outperforms the other models on the testing set which corresponds to the optimal model. In the section below, we use ANOVA for testing the null hypothesis that this model is complex enough to explain the data vs. the alternative hypothesis that a more complex model is required.
-
-``` {r 7.9 6 a ii, message=FALSE}
+## ----7.9 6 a ii, message=FALSE-------------------------------------------
 # We fit different polynomial models going from degree 1 to 10
 fit1 = lm(wage ~ age, data = Wage)
 fit2 = lm(wage ~ poly(age, 2), data = Wage)
@@ -247,12 +175,8 @@ fit10 = lm(wage ~ poly(age, 10), data = Wage)
 
 # We use the null hypothesis test ANOVA
 anova(fit1, fit2, fit3, fit4, fit5, fit6, fit7, fit8, fit9, fit10)
-```
 
-We can observe that a polynomial fit with degree 4 provides a statistically significant fit to the data (degree 3 too), however, the other models are not justified since they provide higher p-values. We can say the the ANOVA test proves the results found in the plot above.
-
-In this section, we fit the data with the previous model:
-``` {r 7.9 6 a iii, message=FALSE}
+## ----7.9 6 a iii, message=FALSE------------------------------------------
 # Plot the Wage vs. Age data
 plot(wage ~ age, data = Wage)
 
@@ -268,13 +192,8 @@ predictions = predict(fit, newdata = list(age = ageGrid))
 
 # Display the model on the plot
 lines(ageGrid, predictions, col = "red", lwd = 3)
-```
 
-b.
-
-We repeat the same process for the step function using 10-fold cross validation.
-
-``` {r 7.9 6 b i, message=FALSE}
+## ----7.9 6 b i, message=FALSE--------------------------------------------
 errors <- rep(NA, 10)
 for (intervals in 2:10) {
     Wage$age.cut = cut(Wage$age, intervals)
@@ -284,24 +203,16 @@ for (intervals in 2:10) {
 plot(2:10, errors[-1], xlab = "Cuts", ylab = "Test MSE", type = "l")
 
 points(which.min(errors), errors[which.min(errors)], col = "green", cex = 2.5, pch = 20)
-```
 
-We can observe that the optimal number of `cuts = 8` since it corresponds to the lowest error on the testing set. In the section below, we plot the data and the 8-cuts step model fit.
-
-```{r 7.9 6 b ii}
+## ----7.9 6 b ii----------------------------------------------------------
 plot(wage ~ age, data = Wage)
 agelims = range(Wage$age)
 age.grid = seq(from = agelims[1], to = agelims[2])
 fit = glm(wage ~ cut(age, 8), data = Wage)
 preds = predict(fit, data.frame(age = age.grid))
 lines(age.grid, preds, col = "red", lwd = 3)
-```
 
-### 6. (20 points) Section 7.9, Page 299, question 7
-
-Let's first begin by exploring the relationship between `wage` from a side and `maritl` and `jobclass` from the other side.
-
-```{r 7.9 7 i}
+## ----7.9 7 i-------------------------------------------------------------
 # Fix the random seed
 set.seed(1)
 
@@ -312,13 +223,8 @@ summary(Wage[, c("maritl", "jobclass")] )
 par(mfrow = c(1, 2))
 plot(Wage$maritl, Wage$wage)
 plot(Wage$jobclass, Wage$wage)
-```
 
-From the plots above, we can see that a `married` marital status corresponds to higher wages (followed by widowed) and job class corresponding to `informational` presents higher wages too on an average.
-
-In this section, let's experiment different models using natural spline functions of the variables `martil`, `jobclass`, `year`, `education` and `age`.
-
-```{r 7.9 7 ii}
+## ----7.9 7 ii------------------------------------------------------------
 library(gam)
 fit0 = gam(wage ~ lo(age,span=200,degree=1), data = Wage)
 fit1 = gam(wage ~ lo(age,span=200,degree=1) + year, data = Wage)
@@ -328,13 +234,8 @@ fit5 = gam(wage ~ s(year,4)+lo(age,span=200,degree=1) + education + jobclass, da
 fit6 = gam(wage ~ s(year,4)+lo(age,span=200,degree=1) + education + maritl, data = Wage)
 fit7 = gam(wage ~ s(year,4)+lo(age,span=200,degree=1) + education + jobclass + maritl, data = Wage)
 anova(fit0, fit1, fit2, fit4, fit5, fit6, fit7)
-```
 
-We can conclude that models 4 and 6 are statistically significant with respectively p-values equal to `< 2.2e-16` and `< 2.2e-16`. Hence, we can say that the model gets a statistically significant improvement by including the `year spline`, `age local regression`, `education` and `maritl`. However, the model is less significant for the cases where we introduced `jobclass`.
-
-In this section, we are going to plot our 7th model as shown below:
-
-```{r 7.9 7 iii}
+## ----7.9 7 iii-----------------------------------------------------------
 attach(Wage)
 
 # Calculate the prediction with our model
@@ -350,14 +251,8 @@ points(age,myPreds$fit,col='green',pch=20)
 par(mfrow = c(2, 2), pty = "s")
 plot(fit6,se=TRUE)
 
-```
 
-We can observe our data is not fitted with a linear model (plane) but instead is fitted with multiple lines each corresponding to a value of the categorical variables `education` and `mirtl`. We can see that our model is better fitted by combining multiple models such as `spline`, `local regression` and `linear regression` with `continous` and `categorical` variables.
-
-
-### 7. (10 points) Section 8.4, Page 332, question 1
-
-```{r 8.4 setup, echo=FALSE}
+## ----8.4 setup, echo=FALSE-----------------------------------------------
 partition_plot <- function (tree, label = "yval", add = FALSE, ordvars, ...) 
 {
     ptXlines <- function(x, v, xrange, xcoord = NULL, ycoord = NULL, 
@@ -459,9 +354,8 @@ partition_plot <- function (tree, label = "yval", add = FALSE, ordvars, ...)
         text(yy[1L, ], yy[2L, ], as.character(paste("R", 1:length(lab), sep = "")), ...)
     }
 }
-```
 
-```{r 8.4 1}
+## ----8.4 1---------------------------------------------------------------
 library(tree)
 syn_data <- data.frame(mvrnorm(n= 100, mu = c(10,15), matrix(c(10,3,3,5),2,2)))
 color <- sample(c("red", "blue"), nrow(syn_data), replace = T)
@@ -469,14 +363,8 @@ syn_data$class <- ifelse(color == "red", 1, 0)
 tree.fit <- tree(class ~ ., data = syn_data, control = tree.control(nobs = nrow(syn_data), mindev = 0.02, minsize = 30))
 
 partition_plot(tree.fit)
-```
 
-
-### 8. (10 points) Section 8.4, Page 333-334, question 8
-
-a.
-
-```{r 8.4 8 a}
+## ----8.4 8 a-------------------------------------------------------------
 
 library(ISLR)
 set.seed(1)
@@ -487,11 +375,8 @@ split = sample(1:nrow(Carseats), nrow(Carseats) / 2)
 Carseats.train = Carseats[split, ]
 Carseats.test = Carseats[-split, ]
 
-```
 
-b.
-
-```{r 8.4 8 b}
+## ----8.4 8 b-------------------------------------------------------------
 # Import the library
 library(tree)
 
@@ -500,67 +385,41 @@ summary(tree.carseats)
 plot(tree.carseats)
 text(tree.carseats, pretty = 0)
 
-```
 
-We can see that the most important variable in the tree is `ShelveLoc` and then `Price` which means that knowing the shelve location would be the information that helps us the most to predict the `sales` of the carseats. 
-
-```{r 8.4 8 b ii}
+## ----8.4 8 b ii----------------------------------------------------------
 
 pred <- predict(tree.carseats, newdata = Carseats.test)
 mean((pred - Carseats.test$Sales)^2)
 
-```
 
-In this case, we obtain about `4.15` as test MSE.
-
-c.
-
-In this section, we use cross-validation to know which size is optimal for the tree complexity.
-
-```{r 8.4 8 c i}
+## ----8.4 8 c i-----------------------------------------------------------
 cv.carseats <- cv.tree(tree.carseats)
 plot(cv.carseats$size, cv.carseats$dev, type = "b")
 tree.min <- which.min(cv.carseats$dev)
 points(tree.min, cv.carseats$dev[tree.min], col = "red", cex = 2, pch = 20)
 
-```
 
-We can observe that a size of `8` corresponds to the minimal deviance. Hence, we draw the tree with `size = 8` and we compute the test MSE for this tree.
-
-```{r 8.4 8 c ii}
+## ----8.4 8 c ii----------------------------------------------------------
 
 prune.carseats = prune.tree(tree.carseats, best = 8)
 plot(prune.carseats)
 text(prune.carseats, pretty = 0)
 pred = predict(prune.carseats, newdata = Carseats.test)
 mean((pred - Carseats.test$Sales)^2)
-```
 
-We can see that pruning the tree is not helpful in this case since the test MSE increased after pruning from `4.15` to about `5.09`. However, the tree seems way more human readable than the first one and presents the most important variables in the same order.
-
-d.
-
-```{r 8.4 8 d i}
+## ----8.4 8 d i-----------------------------------------------------------
 library(randomForest)
 
 bag.carseats <- randomForest(Sales ~ ., data = Carseats.train, mtry = 10, ntree = 500, importance = TRUE)
 pred.bag <- predict(bag.carseats, newdata = Carseats.test)
 mean((pred.bag - Carseats.test$Sales)^2)
-```
 
-As we can see, using bagging decreased the test MSE to about `2.63` which means it outperforms the previous two models.
-
-```{r 8.4 8 d ii}
+## ----8.4 8 d ii----------------------------------------------------------
 
 importance(bag.carseats)
 
-```
 
-We can observe also that the most important variables are `ShelveLoc`, `Price` and `Age` which were also the most important variables for our previous models.
-
-e.
-
-```{r 8.4 8 e i}
+## ----8.4 8 e i-----------------------------------------------------------
 mse.vec <- NA
 for (a in 1:10){
   rf.carseats <-  randomForest(Sales ~ . , data=Carseats.train, 
@@ -575,19 +434,12 @@ which.min(mse.vec)
 # Test MSE corresponding to the best model
 mse.vec[which.min(mse.vec)]
 
-```
 
-After applying random forest, we observe that the best model having to the lowest test MSE `2.56` corresponds to a tree using 10 predictors.
-
-```{r 8.4 8 e ii}
+## ----8.4 8 e ii----------------------------------------------------------
 
 # Most important variables corresponding to the best model
 rf.carseats <-  randomForest(Sales ~ . , data = Carseats, 
                              mtry=9, ntree=500, importance=TRUE)
 importance(rf.carseats)
 
-```
 
-Our best model shows also that the most important predictors in order are `ShelveLoc`, `Price`, `CompPrice`, `Advertising` and `Age`.
-
-From the experiments above, we can conclude that the number of predictors `m` helps reduce the test MSE and hence, helps predicting our data with higher accuracy which explains why pruning the same tree in `b` generated a higher test MSE. However, there is a trade-off between the model's `accuracy` and `complexity` which makes the model more accurate but less readable and more complex.
