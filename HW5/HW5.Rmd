@@ -16,7 +16,6 @@ knitr::opts_chunk$set(echo = TRUE,
 # https://www.calvin.edu/~rpruim/courses/s341/S17/from-class/MathinRmd.html
 ```
 
-<<<<<<< HEAD
 ### 1.(10 points) Section 8.4, Page 332, question 3
 
 ```{r 8.4 3, echo=TRUE}
@@ -135,63 +134,59 @@ The test error of pruned tree (18.89%) is slighly higher than the unpruned tree 
 
 ### 3.(10 points) Section 9.7, Page 368, question 2
 
-a)
+a.
 
-$(1 +X_1)^2 + (2-X_2)^2 = 4$ is a circle with radius $\sqrt4$ and center $(-1, 2)$
+The equation provided in the question corresponds to a circle of radius $\sqrt{4} =2$ and of center (-1,2). The sketch of the non-linear decision boundary (circle) is defined below:
 
-```{r 9.7 2 a, echo=TRUE}
-radius = 2
-plot(NA, NA, type = "n", xlim = c(-4, 2), ylim = c(-1, 5), asp = 1, xlab = "X1", 
-    ylab = "X2")
-symbols(c(-1), c(2), circles = c(radius), add = TRUE, inches = FALSE)
+```{r 9.7 2 a}
+plot(NA, NA, type = "n", xlim = c(-4, 2), ylim = c(-1, 5), asp = 1, xlab = "X1", ylab = "X2")
+symbols(c(-1), c(2), circles = c(2), add = TRUE, inches = FALSE,)
 ```
 
-b)
+b.
 
-$>4$ is area outside circle
+Inside the circle (<4) and on its boundary (=4), the set of points respects the following equation $(1+X_1)^2 + (2-X_2)^2 \le 4$ (represented in red), however, outside of the circle, the set of points respects the following equation $(1+X_1)^2 + (2-X_2)^2 > 4$ (represented in blue)
 
-```{r 9.7 2 b, echo=TRUE}
-radius = 2
-plot(NA, NA, type = "n", xlim = c(-4, 2), ylim = c(-1, 5), asp = 1, xlab = "X1", 
-    ylab = "X2")
-symbols(c(-1), c(2), circles = c(radius), add = TRUE, inches = FALSE)
-text(c(-1), c(2), "< 4")
+```{r 9.7 2 b}
+plot(NA, NA, type = "n", xlim = c(-4, 2), ylim = c(-1, 5), asp = 1, xlab = "X1", ylab = "X2")
+symbols(c(-1), c(2), rectangles = matrix(c(14,7),nrow=1), add = TRUE, inches = FALSE, bg="skyblue")
+symbols(c(-1), c(2), circles = c(2), add = TRUE, inches = FALSE, bg="firebrick2", fg="firebrick2")
+text(c(-1), c(2), "<= 4")
 text(c(-4), c(2), "> 4")
 ```
 
-c)
-```{r 9.7 2 c, echo=TRUE}
-pred.class <- function(x1,x2){
-  if( (1 + x1) ^ 2 + (2-x2)^2 > 4){
-    return("blue")
-  }
-  else{
-    return("red")
-  }
-}
+c.
 
-points = data.frame(x1 = c(0, -1, 2, 3), x2 = c(0, 1, 2, 8))
-pcolor = apply(points, 1, FUN = function(m){pred.class(m[1], m[2])})
+We replace the values of $X_1$ and $X_2$ in the equation above for each of these points as shown below:
 
-plot(points, col = pcolor,
-     type = "p", asp = 1, xlab = "X1", ylab = "X2")
-symbols(c(-1), c(2), circles = c(radius), add = TRUE, inches = FALSE)
+| X1 | X2 | Eq     | Class |
+|----|----|--------|-------|
+| 0  | 0  | 5 > 4  | Blue  |
+| -1 | 1  | 1 < 4  | Red   |
+| 2  | 2  | 9 > 4  | Blue  |
+| 3  | 8  | 52 > 4 | Blue  |
 
+
+
+```{r 9.7 2 c}
+plot(c(0, -1, 2, 3), c(0, 1, 2, 8), col = c("blue", "red", "blue", "blue"), 
+    type = "p", asp = 1, xlab = "X1", ylab = "X2")
+symbols(c(-1), c(2), circles = c(2), add = TRUE, inches = FALSE)
+text(c(1), c(0), "(0,0)")
+text(c(-1), c(1.5), "(-1,1)")
+text(c(2), c(1.5), "(2,2)")
+text(c(3), c(7.5), "(3,8)")
 ```
 
-The observations are classified as shown in the above graph
+d.
 
+Let's first expand the equation of the circle (decision boundary) given in the question.
 
-d)
-The decision boundary in c) is:
+$(1+X_1)^2 + (2-X_2)^2 = 4$
 
-$(1 +X_1)^2 + (2-X_2)^2 > 4$
+$\Leftrightarrow X_1^2 + X_2^2 + 2X_1 - 4X_2 + 1 = 0$
 
-Expanding and simplifying, we have:
-
-$X_1^2 + X_2^2 + 2X_1 - 4X_2 +5 > 4$
-
-We see that this equation is linear in $X_1, X_1^2, X_2$, and $X_2^2$, i.e linear in the betas not in $X$.
+It is clear that this equation is not linear in $X_1$ and $X_2$ since it includes terms in $X_1^2$ and $X_2^2$, however, this equation is linear in terms of $X_1$, $X_1^2$, $X_2$ and $X_2^2$.
 
 
 ### 4.(20 points) Section 9.7, Page 369, question 4 (Open ended question)
@@ -276,6 +271,8 @@ For the current data both Polynomial SVM (degree 2) and RBF SVM perform equally 
 
 a.
 
+We generate 500 data points centered around 0 within a 2-dimensional space and belonging to two different calsses separated by a quadratic decision boundary.
+
 ```{r 9.7 5 a}
 set.seed(10)
 x1 = runif(500) - 0.5
@@ -285,15 +282,22 @@ y = 1 * (x1^2 - x2^2 > 0)
 
 b.
 
+We plot the data generated in a.
+
 ```{r 9.7 5 b}
 plot(x1, x2, xlab = "X1", ylab = "X2", col = (3 - y), pch = (2 - y))
 ```
 
 c.
+
+We fit this data with a logistic regression model as shown below:
+
 ```{r 9.7 5 c}
 logit.fit <- glm(y ~ x1 + x2, family = "binomial")
 summary(logit.fit)
 ```
+
+We can observe that none of the features is statistically significant.
 
 d.
 
@@ -306,40 +310,63 @@ plot(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3 - 1), pch = (2 - 1),
 points(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3 - 0), pch = (2 - 0))
 ```
 
+We can observe that the decision boundary is clearly linear as expected.
+
 e.
 
+Now, we fit our model with a non-linear logistic regression model involving the quadratic terms for $X_1$ and $X_2$.
+
 ```{r 9.7 5 e}
-logitnl.fit <- glm(y ~ poly(x1, 2) + poly(x2, 2) + I(x1 * x2), family = "binomial")
-summary(logitnl.fit)
+logitnl.fit <- glm(y ~ poly(x1, 2) + poly(x2, 2), family = "binomial")
 ```
 
 f.
+
+We plot the predicted classes according to our new model.
+
 ```{r 9.7 5 f}
 probs <- predict(logitnl.fit, data, type = "response")
 preds <- rep(0, 500)
-preds[probs > 0.47] <- 1
+preds[probs > 0.5] <- 1
 plot(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3 - 1), pch = (2 - 1), xlab = "X1", ylab = "X2")
 points(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3 - 0), pch = (2 - 0))
 ```
 
+We can observe that the logistic regression model now has non-linear decision boundary that looks like our initial dataset.
+
 g.
+
+We fit an SVM model to our data with a high budget (small penalty).
+
 ```{r 9.7 5 g}
 library(e1071)
 data$y <- as.factor(data$y)
+# Fit SVM with a small penalty
 svm.fit <- svm(y ~ x1 + x2, data, kernel = "linear", cost = 0.01)
+# Predict and summarize the predictions
 preds <- predict(svm.fit, data)
+summary(preds)
+# Plot the data
 plot(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3 - 0), pch = (2 - 0), xlab = "X1", ylab = "X2")
 points(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3 - 1), pch = (2 - 1))
 ```
 
+We can observe that the decision boundary is linear for this model since we use a linear kernel and that almost all the data got classified in the same class (the red class below the line has 423 data points) even though we assigned a high budget to SVM because it tries to optimally separate a non-linearly seperated data with a line, which might occur to a good prediction to class 0 but a poor prediction in class 1 (a lot of data points predicted as 1 are actually 0)
+
 h.
 ```{r 9.7 5 h}
 data$y <- as.factor(data$y)
-svmnl.fit <- svm(y ~ x1 + x2, data, kernel = "radial", gamma = 1)
+svmnl.fit <- svm(y ~ x1 + x2, data, kernel = "radial")
 preds <- predict(svmnl.fit, data)
 plot(data[preds == 0, ]$x1, data[preds == 0, ]$x2, col = (3 - 0), pch = (2 - 0), xlab = "X1", ylab = "X2")
 points(data[preds == 1, ]$x1, data[preds == 1, ]$x2, col = (3 - 1), pch = (2 - 1))
 ```
+
+We can observe that now that we changed the linear kernel to radial, the decision boundary is non-linear again and it looks similar to our initial data separation.
+
+(i).
+
+From the above experiments, we may conclude that both SVM with a linear kernal and logistic regression (without quadratic terms) perform poorly on non-linear decision boundaries, however, both SVM with a radial kernel and adding quadratic terms (non linear in $X_s$ terms) to the logistic regression model perform really well on non-linear decision boundaries.
 
 ### 6. (10 points) Section 10.7, Page 414-415, question 4
 
@@ -359,54 +386,77 @@ Assuming that d(5,6)=d, the single and complete linkage dissimilarities between 
 
 a.
 
+We generate a simulated set of data containing 60 observations divided equally into 3 distinct classes (20 data points per class). We added a mean shift of 0.7 between the three classes to seperate them visually.
+
 ```{r 9.7 7 a}
-set.seed(2)
-x <- matrix(rnorm(20 * 3 * 50, mean = 0, sd = 0.001), ncol = 50)
-x[1:20, 2] <- 1
-x[21:40, 1] <- 2
-x[21:40, 2] <- 2
-x[41:60, 1] <- 1
-true.labels <- c(rep(1, 20), rep(2, 20), rep(3, 20))
+set.seed(11)
+X <- rbind(matrix(rnorm(20*50, mean = 0), nrow = 20),
+matrix(rnorm(20*50, mean=0.7), nrow = 20),
+matrix(rnorm(20*50, mean=1.4), nrow = 20))
 ```
 
 b.
 
+We perform PCA on the 60 observations generated above and then we plot them according to the first two principal components PC1 and PC2 as shown below:
+
 ```{r 9.7 7 b}
-pr.out <- prcomp(x)
-plot(pr.out$x[, 1:2], col = 1:3, xlab = "Z1", ylab = "Z2", pch = 19)
+# Perform PCA
+X.pca = prcomp(X)$x
+# Plot according to the first two principal components
+plot(X.pca[,1:2], col=c(rep(1,20), rep(2,20), rep(3,20)))
 ```
+
+We can see that the three classes are well sperated and easily distinguishable.
 
 c.
 
 ```{r 9.7 7 c}
-pr.out <- prcomp(x)
-plot(pr.out$x[, 1:2], col = 1:3, xlab = "Z1", ylab = "Z2", pch = 19)
+res = kmeans(X, centers = 3)
+true_class = c(rep(1,20), rep(2,20), rep(3,20))
+table(res$cluster, true_class)
 ```
+
+We can see that the data is perfectly seperated into 3 distincs clusters after performing the 3-mean algorithm since each intial class is now separated in a single cluster (no overlapping).
 
 d.
 
 ```{r 9.7 7 d}
-km.out <- kmeans(x, 2, nstart = 20)
-table(true.labels, km.out$cluster)
+res = kmeans(X, centers = 2)
+true = c(rep(1,20), rep(2,20), rep(3,20))
+table(res$cluster, true_class)
 ```
+
+By executing K-means with $K=2$, we force our algorithm to come out with only 2 clusters, hence, it is obliged to group data points from different classes into the same cluster.
+According to the above, 2-means succeeds to separate on class from the two others (class 3 is perfectly clustered), however, the class 1 and 2 are combined in the same cluster.
 
 e.
 
 ```{r 9.7 7 e}
-km.out <- kmeans(x, 4, nstart = 20)
-table(true.labels, km.out$cluster)
+res = kmeans(X, centers = 4)
+true = c(rep(1,20), rep(2,20), rep(3,20))
+table(res$cluster, true_class)
 ```
+
+We call K-means with $K=4$ which requires our algorithm to output 4 different clusters. We can observe that two classes have been well separated (1 and 2 even though 2 instances of class 2 are in cluster 3), however, the other class (class 3) has been divided in two different clusters (cluster 2 and 3) and we can easily obtain it by the union of these clusters.
 
 f.
 
 ```{r 9.7 7 f}
-km.out <- kmeans(pr.out$x[, 1:2], 3, nstart = 20)
-table(true.labels, km.out$cluster)
+res = kmeans(X.pca[,1:2], centers = 3)
+true = c(rep(1,20), rep(2,20), rep(3,20))
+table(res$cluster, true_class)
 ```
+
+Applying K-means (with $K=3$) on the two principal components after performing PCA generates the same results as in b.
+
+Since PCA preserves pairwise distance between data points and only tries to minimize the variance, we can say that the 2 principal components provide enough information on the data and doesn't affect the output of 3-means.
 
 g.
 
 ```{r 9.7 7 g}
-km.out <- kmeans(scale(x), 3, nstart = 20)
-table(true.labels, km.out$cluster)
+res = kmeans(scale(X), centers = 3)
+true = c(rep(1,20), rep(2,20), rep(3,20))
+table(res$cluster, true_class)
 ```
+
+Since scaling the data also preserves pairwise distance between data points, we can see also that after scaling the data, the output of 3-means is not different from b.
